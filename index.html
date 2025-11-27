@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ Công trình Tổng Công ty 319</title>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="319logo.png" sizes="32x32">
+    <link rel="shortcut icon" href="319logo.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="319logo.png">
+
+    <!-- Meta tags for SEO and Social Sharing -->
+    <meta name="description" content="Hệ thống bản đồ công trình Tổng Công ty 319 - Quản lý và theo dõi các công trình xây dựng trên toàn quốc">
+    <meta name="keywords" content="bản đồ công trình, Tổng Công ty 319, xây dựng, quản lý công trình, Việt Nam">
+    <meta name="author" content="Tổng Công ty 319 - Bộ Quốc phòng">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Bản đồ Công trình Tổng Công ty 319">
+    <meta property="og:description" content="Hệ thống quản lý và theo dõi công trình xây dựng trên toàn quốc">
+    <meta property="og:type" content="website">
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.16.0/mapbox-gl.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    <link rel="preload" href="main.css" as="style">
+
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.16.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.16.0/mapbox-gl.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="main.css">
+
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://api.mapbox.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com/ajax/libs">
+    <script>
+        // Kiểm tra nếu chưa đăng nhập thì chuyển hướng
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Đang tải bản đồ...</div>
+    </div>
+
+    <div class="app-container" role="main">
+        <!-- Sidebar -->
+        <aside class="sidebar" role="complementary" aria-label="Thông tin công trình">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon" aria-hidden="true">
+                        <img src="319logo.png" alt="Logo Tổng Công ty 319" loading="lazy">
+                    </div>
+                    <div class="logo-text">TỔNG CÔNG TY 319 BỘ QUỐC PHÒNG</div>
+                </div>
+                <div class="subtitle">Hệ thống bản đồ công trình trên toàn quốc</div>
+            </div>
+
+            <!-- Statistics Overview -->
+            <section class="stats-overview" aria-label="Thống kê tổng quan">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalProjects" aria-live="polite">0</div>
+                    <div class="stat-label">Công trình</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalProvinces" aria-live="polite">0</div>
+                    <div class="stat-label">Tỉnh thành</div>
+                </div>
+
+            </section>
+
+            <!-- Search Section -->
+            <section class="search-section" aria-label="Tìm kiếm công trình">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm công trình..." aria-label="Tìm kiếm công trình theo tên hoặc địa điểm" autocomplete="off">
+                    <div class="search-icon" aria-hidden="true">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+
+            </section>
+
+
+
+            <!-- Filter Panel -->
+            <section class="filter-panel" id="filterPanel" aria-label="Bộ lọc công trình" style="display: none;">
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>Loại công trình:</label>
+                        <div class="filter-options" id="typeFilters">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="commercial" data-filter="type">
+                                <span class="checkmark" style="border-color: #e74c3c"></span>
+                                Thương mại
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="transport" data-filter="type">
+                                <span class="checkmark" style="border-color: #3498db"></span>
+                                Giao thông
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="industrial" data-filter="type">
+                                <span class="checkmark" style="border-color: #2ecc71"></span>
+                                Công nghiệp
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Năm hoàn thành:</label>
+                        <div class="year-range">
+                            <input type="number" id="yearFrom" placeholder="Từ năm" min="2000" max="2025">
+                            <span>đến</span>
+                            <input type="number" id="yearTo" placeholder="Đến năm" min="2000" max="2025">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Tỉnh thành:</label>
+                        <select id="provinceFilter">
+                            <option value="">Tất cả tỉnh thành</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button class="filter-btn apply-filters">Áp dụng</button>
+                        <button class="filter-btn reset-filters">Đặt lại</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects List -->
+            <section class="projects-list" aria-label="Danh sách công trình">
+                <h2 class="projects-title">
+                    <i class="fas fa-list-ul" aria-hidden="true"></i> Danh sách công trình
+                    <span class="sr-only">, sử dụng phím tab để di chuyển giữa các công trình</span>
+                </h2>
+                <div id="projectsList" role="list" aria-label="Danh sách các công trình">
+                    <div class="projects-loading" aria-live="polite">Đang tải danh sách công trình...</div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Map Container -->
+        <main class="map-container" role="region" aria-label="Bản đồ công trình">
+            <div id="map" role="application" aria-label="Bản đồ tương tác hiển thị các công trình xây dựng" tabindex="0">
+                <!-- Map will be initialized by JavaScript -->
+            </div>
+
+            <!-- Map Controls -->
+            <nav class="map-controls" aria-label="Điều khiển bản đồ">
+                <button class="control-btn" id="zoomIn" title="Phóng to" aria-label="Phóng to bản đồ">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                </button>
+                <button class="control-btn" id="zoomOut" title="Thu nhỏ" aria-label="Thu nhỏ bản đồ">
+                    <i class="fas fa-minus" aria-hidden="true"></i>
+                </button>
+                <button class="control-btn" id="resetView" title="Về vị trí Việt Nam" aria-label="Trở về vị trí mặc định của Việt Nam">
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                </button>
+                <button class="control-btn" id="toggleSatellite" title="Chuyển đổi chế độ vệ tinh" aria-label="Chuyển đổi giữa chế độ bản đồ và ảnh vệ tinh">
+                    <i class="fas fa-satellite" aria-hidden="true"></i>
+                </button>
+                <button class="control-btn" id="themeToggle" title="Chuyển đổi chế độ sáng/tối" aria-label="Chuyển đổi chế độ sáng tối">
+                    <i class="fas fa-moon" aria-hidden="true"></i>
+                </button>
+                <div class="control-divider" aria-hidden="true"></div>
+
+                <button class="control-btn" id="openLayers" title="Mở lớp bản đồ" aria-label="Mở bảng điều khiển lớp bản đồ">
+                    <i class="fas fa-layer-group" aria-hidden="true"></i>
+                </button>
+                <button class="control-btn" id="openLegend" title="Mở chú giải" aria-label="Mở bảng chú giải màu sắc">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                </button>
+
+                <button class="control-btn" id="openStats" title="Mở Dashboard" aria-label="Mở bảng thống kê công trình">
+        <i class="fas fa-chart-bar" aria-hidden="true"></i>
+    </button>
+                <button class="control-btn" onclick="comparisonManager.openComparison()" id="openComparison" title="So sánh công trình" aria-label="So sánh công trình">
+    <i class="fas fa-balance-scale"></i> 
+</button>
+                <div class="control-divider" aria-hidden="true"></div>
+
+                <!-- ===== THÊM NÚT ROUTE PLANNING ĐẠY ===== -->
+                <button class="control-btn" id="openRouteBtn" title="Tính Toán Tuyến Đường">
+        <i class="fas fa-road"></i>
+    </button>
+                <!-- ===== THÊM NÚT FORM ĐẠY ===== -->
+                <button class="control-btn" id="openFormBtn" title="Thêm/Sửa Dự Án">
+        <i class="fas fa-plus-circle"></i>
+        <!-- Nút này sẽ mở modal form để thêm hoặc sửa dự án -->
+                <button class="control-btn toggle-controls" id="toggleControls" title="Ẩn/hiện công cụ" aria-label="Ẩn hoặc hiện thanh công cụ bản đồ">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </button>
+            </nav>
+            <!-- Map Overlay Panel -->
+            <section class="map-overlay" id="mapOverlay" role="dialog" aria-labelledby="mapOverlayTitle" aria-hidden="true">
+                <div class="overlay-header">
+                    <h3 id="mapOverlayTitle"><i class="fas fa-layer-group" aria-hidden="true"></i> Lớp bản đồ</h3>
+                    <button class="close-overlay" id="closeOverlay" aria-label="Đóng bảng lớp bản đồ">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="layer-control">
+                    <input type="checkbox" id="satelliteLayer" checked aria-checked="true">
+                    <label for="satelliteLayer">Ảnh vệ tinh</label>
+                </div>
+                <div class="layer-control">
+                    <input type="checkbox" id="projectLayer" checked aria-checked="true">
+                    <label for="projectLayer">Điểm công trình</label>
+                </div>
+                <div class="layer-control">
+                    <input type="checkbox" id="provinceLayer" checked aria-checked="true">
+                    <label for="provinceLayer">Biên giới tỉnh</label>
+                </div>
+                <!-- HEATMAP TOGGLE -->
+                <div class="layer-control">
+                    <input type="checkbox" id="heatmapLayer" aria-checked="false">
+                    <label for="heatmapLayer">Mật độ công trình</label>
+                </div>
+            </section>
+
+            <!-- Legend Panel -->
+            <section class="legend" id="legend" role="dialog" aria-labelledby="legendTitle" aria-hidden="true">
+                <div class="overlay-header">
+                    <h3 id="legendTitle" class="legend-title">Chú giải</h3>
+                    <button class="close-overlay" id="closeLegend" aria-label="Đóng bảng chú giải">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e74c3c;" aria-hidden="true"></div>
+                    <div class="legend-label">Công trình thương mại</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3498db;" aria-hidden="true"></div>
+                    <div class="legend-label">Công trình giao thông</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2ecc71;" aria-hidden="true"></div>
+                    <div class="legend-label">Công trình công nghiệp</div>
+                </div>
+            </section>
+
+            <!-- Province Info Panel -->
+            <section class="province-info" id="provinceInfo" role="dialog" aria-labelledby="provinceName" aria-hidden="true">
+                <div class="province-header">
+                    <h2 class="province-name" id="provinceName">Tên tỉnh</h2>
+                    <button class="close-btn" id="closeProvinceInfo" aria-label="Đóng thông tin tỉnh">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="province-stats" aria-label="Thống kê tỉnh">
+                    <div class="province-stat">
+                        <div class="province-stat-value" id="provinceProjectCount" aria-live="polite">0</div>
+                        <div class="province-stat-label">Công trình</div>
+                    </div>
+                    <div class="province-stat">
+                        <div class="province-stat-value" id="provinceArea" aria-live="polite">0</div>
+                        <div class="province-stat-label">Diện tích (km²)</div>
+                    </div>
+                    <div class="province-stat">
+                        <div class="province-stat-value" id="provincePopulation" aria-live="polite">0</div>
+                        <div class="province-stat-label">Dân số (triệu)</div>
+                    </div>
+                    <div class="province-stat">
+                        <div class="province-stat-value" id="provinceGDP" aria-live="polite">0</div>
+                        <div class="province-stat-label">GDP (tỷ USD)</div>
+                    </div>
+                </div>
+
+                <h3 class="projects-title">
+                    <i class="fas fa-list-ul" aria-hidden="true"></i> Công trình trong tỉnh
+                </h3>
+                <div id="provinceProjectsList" role="list" aria-label="Danh sách công trình trong tỉnh">
+                    <!-- Province projects will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Project Info Panel -->
+            <section class="project-info" id="projectInfo" role="dialog" aria-labelledby="projectInfoTitle" aria-hidden="true">
+                <div class="info-header">
+                    <h2 class="info-title" id="projectInfoTitle">Tên công trình</h2>
+                    <button class="close-btn" id="closeInfo" aria-label="Đóng thông tin công trình">
+            <i class="fas fa-times"></i>
+        </button>
+                </div>
+
+                <div class="info-grid" aria-label="Chi tiết công trình">
+                    <!-- Tỉnh/Thành phố -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-map-marker-alt"></i>Tỉnh/Thành phố
+            </dt>
+                        <dd class="info-value" id="infoProvince">-</dd>
+                    </div>
+
+                    <!-- Địa chỉ -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-location-dot"></i>Địa chỉ
+            </dt>
+                        <dd class="info-value" id="infoAddress">-</dd>
+                    </div>
+
+                    <!-- Chủ đầu tư -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-building"></i>Chủ đầu tư
+            </dt>
+                        <dd class="info-value" id="infoInvestor">-</dd>
+                    </div>
+
+                    <!-- Năm hoàn thành -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-calendar-alt"></i>Năm hoàn thành
+            </dt>
+                        <dd class="info-value" id="infoYear">-</dd>
+                    </div>
+
+                    <!-- Quy mô -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-ruler-combined"></i>Quy mô
+            </dt>
+                        <dd class="info-value" id="infoScale">-</dd>
+                    </div>
+
+                    <!-- Tọa độ -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-crosshairs"></i>Tọa độ
+            </dt>
+                        <dd class="info-value" id="infoCoordinates">-</dd>
+                    </div>
+
+                    <!-- Mô tả (thêm mới) -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-file-alt"></i>Mô tả
+            </dt>
+                        <dd class="info-value" id="infoDescription">-</dd>
+                    </div>
+
+                    <!-- Ngân sách (thêm mới) -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-money-bill-wave"></i>Ngân sách
+            </dt>
+                        <dd class="info-value" id="infoBudget">-</dd>
+                    </div>
+
+                    <!-- Trạng thái (thêm mới) -->
+                    <div class="info-item">
+                        <dt class="info-label">
+                <i class="fas fa-tasks"></i>Trạng thái
+            </dt>
+                        <dd class="info-value">
+                            <span class="status-badge" id="infoStatus">-</span>
+                        </dd>
+                    </div>
+                </div>
+
+                <!-- PHẦN HÌNH ẢNH DỰ ÁN -->
+                <div class="project-images-section">
+                    <div class="images-header">
+                        <div class="info-label">
+                            <i class="fas fa-images"></i>Hình ảnh dự án
+                        </div>
+                        <div class="images-update-date" id="imagesUpdateDate">
+                            Cập nhật: <span id="updateDateText">-</span>
+                        </div>
+                    </div>
+                    <div class="images-preview" id="imagesPreview">
+                        <!-- Ảnh sẽ được hiển thị ở đây -->
+                    </div>
+                    <div class="no-images-message" id="noImagesMessage">
+                        <i class="fas fa-image"></i>
+                        <p>Chưa có hình ảnh cho dự án này</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+    <!-- Quick View Modal -->
+    <div class="quick-view-modal" id="quickViewModal">
+        <!-- Content will be populated by JavaScript -->
+    </div>
+
+    <!-- No Script Fallback -->
+    <noscript>
+        <div class="noscript-warning" style="padding: 20px; text-align: center; background: #f8d7da; color: #721c24;">
+            <h2>JavaScript bị vô hiệu hóa</h2>
+            <p>Ứng dụng bản đồ yêu cầu JavaScript để hoạt động. Vui lòng bật JavaScript trong trình duyệt của bạn.</p>
+        </div>
+    </noscript>
+
+    <!-- Screen Reader Only Text -->
+    <div class="sr-only" id="srAnnouncements" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Main JavaScript -->
+    <script src="Codebando.js"></script>
+    <script src="main.js"></script>
+
+    <!-- Image Manager Modal -->
+    <div id="imageModal" class="image-manager-modal" style="display:none;">
+        <div class="image-modal-overlay"></div>
+        <div class="image-modal-container">
+            <div class="image-modal-header">
+                <h3 class="image-modal-title"><i class="fas fa-images"></i> Quản lý ảnh công trình</h3>
+                <button class="image-modal-close" onclick="imageUI.closeImageManager()" aria-label="Đóng modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="image-upload-section">
+                <div class="upload-field">
+                    <label for="imagePath"><i class="fas fa-link"></i> Đường dẫn file ảnh:</label>
+                    <input type="text" id="imagePath" placeholder="VD: images/projects/landmark-81-1.jpg" class="image-path-input">
+                </div>
+                <div class="upload-buttons">
+                    <button id="uploadImageBtn" class="upload-btn-primary"><i class="fas fa-upload"></i> Thêm ảnh</button>
+                    <button onclick="document.getElementById('imageFileInput').click()" class="upload-btn-secondary"><i class="fas fa-folder-open"></i> Chọn file</button>
+                    <input type="file" id="imageFileInput" accept="image/*" style="display:none;">
+                </div>
+            </div>
+
+            <div class="image-gallery-section">
+                <h4><i class="fas fa-image"></i> Bộ sưu tập ảnh</h4>
+                <div id="imageGalleryContainer" class="image-gallery-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle image modal interactions
+        const imageModal = document.getElementById('imageModal');
+        if (imageModal) {
+            imageModal.addEventListener('click', (e) => {
+                if (e.target.id === 'imageModal' || e.target.classList.contains('image-modal-overlay')) {
+                    imageUI.closeImageManager();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('imageModal');
+                if (modal && modal.style.display !== 'none') {
+                    imageUI.closeImageManager();
+                }
+            }
+        });
+
+        // Handle theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.querySelector('i').className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            });
+        }
+
+        // Restore theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <div id="comparisonModal" class="comparison-modal" style="display:none;">
+        <div class="comparison-overlay"></div>
+        <div class="comparison-container">
+            <div class="comparison-header">
+                <h2><i class="fas fa-balance-scale"></i> So Sánh Công Trình</h2>
+                <button class="close-comparison" onclick="comparisonManager.closeComparison()">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+
+            <div class="comparison-controls">
+                <div class="comparison-select">
+                    <label>Thêm công trình:</label>
+                    <select id="comparisonSelect" class="comparison-dropdown">
+                    <option value="">-- Chọn công trình --</option>
+                </select>
+                    <button id="addComparisonBtn" class="btn-add-comparison">
+                    <i class="fas fa-plus"></i> Thêm
+                </button>
+                </div>
+                <button class="btn-clear-comparison" onclick="comparisonManager.clearComparison()">
+                <i class="fas fa-trash"></i> Xóa tất cả
+            </button>
+            </div>
+
+            <div class="comparison-content">
+                <table class="comparison-table" id="comparisonTable">
+                    <thead>
+                        <tr id="comparisonTableHead">
+                            <th style="width: 200px;">Thông tin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="comparison-footer">
+                <button class="btn-export-comparison" onclick="comparisonManager.exportComparison()">
+                <i class="fas fa-download"></i> Tải xuống
+            </button>
+                <button class="btn-close-modal" onclick="comparisonManager.closeComparison()">
+                Đóng
+            </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nút mở modal so sánh (thêm vào sidebar nếu cần) -->
+    <!-- ===== ADVANCED STATISTICS DASHBOARD ===== -->
+    <div id="statsDashboard" class="stats-dashboard" style="display:none;">
+        <div class="stats-overlay" onclick="dashboardManager.closeDashboard()"></div>
+        <div class="stats-container">
+            <!-- Header -->
+            <div class="stats-header">
+                <h2><i class="fas fa-chart-bar"></i> Dashboard Thống Kê Công Trình</h2>
+                <button class="close-stats" onclick="dashboardManager.closeDashboard()">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="stats-kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-value" id="kpiTotal">0</div>
+                    <div class="kpi-label">Tổng Công Trình</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🗺️</div>
+                    <div class="kpi-value" id="kpiProvinces">0</div>
+                    <div class="kpi-label">Tỉnh/TP</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🏗️</div>
+                    <div class="kpi-value" id="kpiCommercial">0</div>
+                    <div class="kpi-label">Thương Mại</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🛣️</div>
+                    <div class="kpi-value" id="kpiTransport">0</div>
+                    <div class="kpi-label">Giao Thông</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🏭</div>
+                    <div class="kpi-value" id="kpiIndustrial">0</div>
+                    <div class="kpi-label">Công Nghiệp</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="stats-charts-grid">
+                <!-- Chart 1: Pie Chart - Loại Công Trình -->
+                <div class="chart-container">
+                    <h3>Phân Bố Theo Loại</h3>
+                    <canvas id="chartTypeDistribution"></canvas>
+                </div>
+
+                <!-- Chart 2: Bar Chart - Công Trình Theo Năm -->
+                <div class="chart-container">
+                    <h3>Xu Hướng Theo Năm</h3>
+                    <canvas id="chartByYear"></canvas>
+                </div>
+
+                <!-- Chart 3: Top Provinces -->
+                <div class="chart-container">
+                    <h3>Top 10 Tỉnh/TP</h3>
+                    <canvas id="chartTopProvinces"></canvas>
+                </div>
+
+                <!-- Chart 4: Status Distribution -->
+                <div class="chart-container">
+                    <h3>Phân Bố Trạng Thái</h3>
+                    <canvas id="chartStatus"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="stats-table-section">
+                <h3>Top 10 Nhà Đầu Tư</h3>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Nhà Đầu Tư</th>
+                            <th>Số Dự Án</th>
+                            <th>Loại Công Trình</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topInvestorsTable">
+                        <!-- JS sẽ render -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer -->
+            <div class="stats-footer">
+                <button class="btn-export-stats" onclick="dashboardManager.exportDashboard()">
+                <i class="fas fa-download"></i> Tải Xuống
+            </button>
+                <button class="btn-refresh-stats" onclick="dashboardManager.refreshStats()">
+                <i class="fas fa-sync-alt"></i> Làm Mới
+            </button>
+                <button class="btn-close-stats" onclick="dashboardManager.closeDashboard()">
+                Đóng
+            </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FORM & DATA ENTRY MODAL ===== -->
+    <div id="dataEntryModal" class="data-entry-modal" style="display:none;">
+        <div class="data-entry-overlay" onclick="formManager.closeForm()"></div>
+        <div class="data-entry-container">
+            <!-- Header -->
+            <div class="data-entry-header">
+                <h2 id="formTitle">➕ Thêm Dự Án Mới</h2>
+                <button class="close-form" onclick="formManager.closeForm()">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+
+            <!-- Form Content -->
+            <form id="projectForm" class="project-form">
+                <!-- Section 1: Thông Tin Cơ Bản -->
+                <fieldset class="form-section">
+                    <legend>📋 Thông Tin Cơ Bản</legend>
+
+                    <div class="form-group">
+                        <label for="projectName">Tên Dự Án *</label>
+                        <input type="text" id="projectName" name="name" placeholder="Nhập tên dự án" required>
+                        <span class="form-error" id="nameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectType">Loại Công Trình *</label>
+                        <select id="projectType" name="type" required>
+                        <option value="">-- Chọn loại --</option>
+                        <option value="commercial">🏗️ Thương Mại</option>
+                        <option value="transport">🛣️ Giao Thông</option>
+                        <option value="industrial">🏭 Công Nghiệp</option>
+                    </select>
+                        <span class="form-error" id="typeError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectProvince">Tỉnh/Thành Phố *</label>
+                        <select id="projectProvince" name="province" required>
+                        <option value="">-- Chọn tỉnh --</option>
+                        <option value="Hà Nội">Hà Nội</option>
+                        <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                        <option value="Đà Nẵng">Đà Nẵng</option>
+                        <option value="Hải Phòng">Hải Phòng</option>
+                        <option value="Cần Thơ">Cần Thơ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                        <span class="form-error" id="provinceError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectYear">Năm *</label>
+                        <input type="number" id="projectYear" name="year" placeholder="2024" min="2000" max="2099" required>
+                        <span class="form-error" id="yearError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectStatus">Trạng Thái *</label>
+                        <select id="projectStatus" name="status" required>
+                        <option value="">-- Chọn trạng thái --</option>
+                        <option value="planned">📋 Quy Hoạch</option>
+                        <option value="in-progress">🚧 Đang Xây</option>
+                        <option value="completed">✅ Hoàn Thành</option>
+                    </select>
+                        <span class="form-error" id="statusError"></span>
+                    </div>
+                </fieldset>
+
+                <!-- Section 2: Địa Chỉ & Vị Trí -->
+                <fieldset class="form-section">
+                    <legend>📍 Địa Chỉ & Vị Trí</legend>
+
+                    <div class="form-group">
+                        <label for="projectAddress">Địa Chỉ *</label>
+                        <input type="text" id="projectAddress" name="address" placeholder="Nhập địa chỉ cụ thể" required>
+                        <span class="form-error" id="addressError"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projectLat">Vĩ Độ (Latitude)</label>
+                            <input type="number" id="projectLat" name="lat" placeholder="10.7769" step="0.0001">
+                            <span class="form-error" id="latError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="projectLng">Kinh Độ (Longitude)</label>
+                            <input type="number" id="projectLng" name="lng" placeholder="106.7009" step="0.0001">
+                            <span class="form-error" id="lngError"></span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-pick-location" onclick="formManager.pickLocationFromMap()">
+                    <i class="fas fa-map-marker-alt"></i> Chọn Vị Trí Từ Bản Đồ
+                </button>
+                </fieldset>
+
+                <!-- Section 3: Thông Tin Chi Tiết -->
+                <fieldset class="form-section">
+                    <legend>💼 Thông Tin Chi Tiết</legend>
+
+                    <div class="form-group">
+                        <label for="projectInvestor">Nhà Đầu Tư *</label>
+                        <input type="text" id="projectInvestor" name="investor" placeholder="Tên công ty/tổ chức" required>
+                        <span class="form-error" id="investorError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectScale">Quy Mô</label>
+                        <input type="text" id="projectScale" name="scale" placeholder="VD: 50 ha, 100,000 m²">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectBudget">Ngân Sách (tỷ đồng)</label>
+                        <input type="number" id="projectBudget" name="budget" placeholder="1000" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectDescription">Mô Tả</label>
+                        <textarea id="projectDescription" name="description" placeholder="Nhập mô tả chi tiết..." rows="4"></textarea>
+                    </div>
+                </fieldset>
+
+                <!-- Section 4: Upload Ảnh -->
+                <fieldset class="form-section">
+                    <legend>🖼️ Hình Ảnh & Tài Liệu</legend>
+
+                    <div class="form-group">
+                        <label>Upload Ảnh (Drag & Drop hoặc Click)</label>
+                        <div class="image-upload-zone" id="imageUploadZone">
+                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <p>Kéo thả ảnh vào đây hoặc <strong>click để chọn</strong></p>
+                            <input type="file" id="projectImages" name="images" accept="image/*" multiple style="display:none;">
+                        </div>
+                        <div id="imagePreview" class="image-preview"></div>
+                    </div>
+                </fieldset>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Lưu Dự Án
+                </button>
+                    <button type="reset" class="btn-reset">
+                    <i class="fas fa-redo"></i> Đặt Lại
+                </button>
+                    <button type="button" class="btn-cancel" onclick="formManager.closeForm()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ===== ROUTE PLANNING & DISTANCE CALCULATOR MODAL định vị đo khoảng cách ===== -->
+    <div id="routePlanningModal" class="route-planning-modal" style="display:none;">
+        <div class="route-overlay" onclick="routeManager.closeRoutePanel()"></div>
+        <div class="route-container">
+            <!-- Header -->
+            <div class="route-header">
+                <h2><i class="fas fa-road"></i> Tính Toán Tuyến Đường</h2>
+                <button class="close-route" onclick="routeManager.closeRoutePanel()">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+
+            <!-- Route Controls -->
+            <div class="route-controls">
+                <div class="route-input-group">
+                    <label>Điểm Xuất Phát:</label>
+                    <div class="route-input-wrapper">
+                        <select id="routeFromSelect" class="route-select">
+                        <option value="">-- Chọn công trình --</option>
+                    </select>
+                        <button class="btn-pick-from-map" onclick="routeManager.pickFromMap()" title="Chọn từ bản đồ">
+                        <i class="fas fa-map-pin"></i>
+                    </button>
+                    </div>
+                    <div id="routeFromCoords" class="route-coords">
+                        <small>Tọa độ: <span id="fromCoordsText">-</span></small>
+                    </div>
+                </div>
+
+                <button class="btn-swap-route" onclick="routeManager.swapRoutePoints()" title="Hoán đổi điểm">
+                <i class="fas fa-arrows-alt-v"></i>
+            </button>
+
+                <div class="route-input-group">
+                    <label>Điểm Đích:</label>
+                    <div class="route-input-wrapper">
+                        <select id="routeToSelect" class="route-select">
+                        <option value="">-- Chọn công trình --</option>
+                    </select>
+                        <button class="btn-pick-to-map" onclick="routeManager.pickToMap()" title="Chọn từ bản đồ">
+                        <i class="fas fa-map-pin"></i>
+                    </button>
+                    </div>
+                    <div id="routeToCoords" class="route-coords">
+                        <small>Tọa độ: <span id="toCoordsText">-</span></small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Mode Selection -->
+            <div class="route-mode-selector">
+                <label>Chế Độ Di Chuyển:</label>
+                <div class="mode-buttons">
+                    <button class="mode-btn active" data-mode="driving" onclick="routeManager.setMode('driving')">
+                    <i class="fas fa-car"></i> Xe Hơi
+                </button>
+                    <button class="mode-btn" data-mode="walking" onclick="routeManager.setMode('walking')">
+                    <i class="fas fa-person-walking"></i> Đi Bộ
+                </button>
+                    <button class="mode-btn" data-mode="cycling" onclick="routeManager.setMode('cycling')">
+                    <i class="fas fa-bicycle"></i> Xe Đạp
+                </button>
+                </div>
+            </div>
+
+            <!-- Route Options -->
+            <div class="route-options">
+                <label class="checkbox-option">
+                <input type="checkbox" id="routeAvoidTolls" name="avoidTolls">
+                <span>Tránh đường cầu phí</span>
+            </label>
+                <label class="checkbox-option">
+                <input type="checkbox" id="routeAvoidMotorway" name="avoidMotorway">
+                <span>Tránh đường cao tốc</span>
+            </label>
+                <label class="checkbox-option">
+                <input type="checkbox" id="routeShowAlternatives" name="alternatives" checked>
+                <span>Hiển thị các tuyến thay thế</span>
+            </label>
+            </div>
+
+            <!-- Calculate Button -->
+            <button class="btn-calculate-route" onclick="routeManager.calculateRoute()">
+            <i class="fas fa-calculator"></i> Tính Toán Tuyến Đường
+        </button>
+
+            <!-- Route Results -->
+            <div class="route-results" id="routeResults" style="display:none;">
+                <div class="results-header">
+                    <h3>Kết Quả Tuyến Đường</h3>
+                </div>
+
+                <!-- Primary Route Info -->
+                <div class="route-info-card primary">
+                    <div class="route-info-title">
+                        <i class="fas fa-route"></i> Tuyến Chính
+                    </div>
+                    <div class="route-info-grid">
+                        <div class="info-row">
+                            <span class="info-label">Khoảng Cách:</span>
+                            <span class="info-value" id="routeDistance">0 km</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Thời Gian:</span>
+                            <span class="info-value" id="routeDuration">0 phút</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Tốc Độ TB:</span>
+                            <span class="info-value" id="routeAvgSpeed">0 km/h</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alternative Routes -->
+                <div class="alternative-routes" id="alternativeRoutes" style="display:none;">
+                    <h4>Tuyến Thay Thế:</h4>
+                    <div id="alternativeRoutesList"></div>
+                </div>
+
+                <!-- Route Steps (Directions) -->
+                <div class="route-directions">
+                    <h4>
+                        <i class="fas fa-list-ol"></i> Hướng Dẫn Chi Tiết
+                    </h4>
+                    <div class="directions-list" id="directionsList">
+                        <!-- Steps will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Route Actions -->
+                <div class="route-actions">
+                    <button class="btn-export-route" onclick="routeManager.exportRoute()">
+                    <i class="fas fa-download"></i> Tải Xuống
+                </button>
+                    <button class="btn-save-route" onclick="routeManager.saveRoute()">
+                    <i class="fas fa-bookmark"></i> Lưu Tuyến Đường
+                </button>
+                    <button class="btn-print-route" onclick="window.print()">
+                    <i class="fas fa-print"></i> In
+                </button>
+                    <button class="btn-share-route" onclick="routeManager.shareRoute()">
+                    <i class="fas fa-share"></i> Chia Sẻ
+                </button>
+                </div>
+            </div>
+
+            <!-- Saved Routes List -->
+            <div class="saved-routes-section">
+                <h4>
+                    <i class="fas fa-history"></i> Tuyến Đường Đã Lưu
+                </h4>
+                <div id="savedRoutesList" class="saved-routes-list">
+                    <p class="no-saved">Chưa có tuyến đường được lưu</p>
+                </div>
+            </div>
+
+            <!-- Close Button -->
+            <div class="route-footer">
+                <button class="btn-close-route" onclick="routeManager.closeRoutePanel()">
+                Đóng
+            </button>
+            </div>
+        </div>
+    </div>
+    <div id="user-panel" style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: white; padding: 8px 15px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+        <span id="username-display" style="margin-right: 10px;"></span>
+        <button onclick="logout()" style="padding: 5px 10px; background: #1a73e8; color: white; border: none; border-radius: 3px; cursor: pointer;">
+        Đăng xuất
+    </button>
+    </div>
+
+    <script>
+        // Hiển thị tên người dùng
+        document.getElementById('username-display').textContent = localStorage.getItem('username') || 'Người dùng';
+
+        // Hàm đăng xuất
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+</body>
+
+</html>

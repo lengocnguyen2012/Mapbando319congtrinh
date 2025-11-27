@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Hệ thống Bản đồ Công trình 319</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="319logo.png" sizes="32x32">
+    <link rel="shortcut icon" href="319logo.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="319logo.png">
+    <style>
+         :root {
+            --primary-color: #1a73e8;
+            --primary-light: #4285f4;
+            --primary-dark: #0d47a1;
+            --secondary-color: #34a853;
+            --accent-color: #fbbc05;
+            --light-color: #ffffff;
+            --dark-color: #202124;
+            --gray-light: #f8f9fa;
+            --gray-medium: #dadce0;
+            --gray-dark: #5f6368;
+            --error-color: #ea4335;
+            --success-color: #34a853;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.15);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent-color) 0%, #f57c00 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(-45deg, #e3f2fd, #f3e5f5, #e8f5e8, #fff3e0);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark-color);
+            padding: 20px;
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .login-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 650px;
+            background: var(--light-color);
+            border-radius: 24px;
+            box-shadow: var(--shadow-strong);
+            overflow: hidden;
+            position: relative;
+            animation: containerFloat 6s ease-in-out infinite;
+        }
+        
+        @keyframes containerFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .login-left {
+            flex: 1;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            animation: pulse 15s infinite linear;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+        
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+        
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            left: 70%;
+            animation-delay: -5s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            top: 80%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+        
+        .shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 30%;
+            left: 80%;
+            animation-delay: -15s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(20px, 20px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 40px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-20px, 20px) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            z-index: 2;
+            position: relative;
+            animation: fadeInUp 1s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo-frame {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .logo-frame:hover {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-frame::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            box-shadow: inset 0 0 0 2px rgba(26, 115, 232, 0.2);
+            pointer-events: none;
+        }
+        
+        .logo-frame img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .logo-subtext {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .welcome-text {
+            margin-bottom: 40px;
+            z-index: 2;
+            position: relative;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+        
+        .welcome-text h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .welcome-text p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .features {
+            list-style: none;
+            margin-top: 30px;
+            z-index: 2;
+            position: relative;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+        
+        .features li {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .features li:hover {
+            transform: translateX(10px);
+        }
+        
+        .features i {
+            margin-right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .features li:hover i {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .login-right {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--light-color);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+        
+        .login-header h2 {
+            font-size: 32px;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .login-header p {
+            color: var(--gray-dark);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            animation: fadeInUp 1s ease 0.8s both;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i:first-child {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-dark);
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-dark);
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 2;
+            background: none;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+        
+        input {
+            width: 100%;
+            padding: 16px 50px 16px 50px;
+            border: 2px solid var(--gray-medium);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: var(--light-color);
+            position: relative;
+            z-index: 1;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+        }
+        
+        input:focus+i {
+            color: var(--primary-color);
+        }
+        
+        .input-highlight {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 0;
+            background: var(--gradient-primary);
+            transition: width 0.4s ease;
+            z-index: 3;
+        }
+        
+        input:focus~.input-highlight {
+            width: 100%;
+        }
+        
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+            animation: fadeInUp 1s ease 1s both;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember-me input {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        
+        .remember-me label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        .forgot-password:hover {
+            color: var(--primary-dark);
+        }
+        
+        .forgot-password::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        
+        .forgot-password:hover::after {
+            width: 100%;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease 1.2s both;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(26, 115, 232, 0.3);
+        }
+        
+        .btn-login:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+            color: var(--gray-dark);
+            font-size: 14px;
+            animation: fadeInUp 1s ease 1.4s both;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 45%;
+            height: 1px;
+            background: var(--gray-medium);
+        }
+        
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 45%;
+            height: 1px;
+            background: var(--gray-medium);
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            animation: fadeInUp 1s ease 1.6s both;
+        }
+        
+        .social-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--gray-medium);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+        }
+        
+        .social-btn:hover::before {
+            opacity: 0.1;
+        }
+        
+        .social-btn i {
+            font-size: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .facebook {
+            color: #1877f2;
+        }
+        
+        .google {
+            color: #ea4335;
+        }
+        
+        .microsoft {
+            color: #0078d4;
+        }
+        
+        .register-link {
+            text-align: center;
+            font-size: 14px;
+            color: var(--gray-dark);
+            animation: fadeInUp 1s ease 1.8s both;
+        }
+        
+        .register-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .register-link a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            padding: 12px;
+            background: rgba(234, 67, 53, 0.08);
+            border-radius: 8px;
+            border-left: 4px solid var(--error-color);
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20%,
+            60% {
+                transform: translateX(-5px);
+            }
+            40%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: var(--gray-dark);
+            animation: fadeInUp 1s ease 2s both;
+        }
+        
+        @media (max-width: 900px) {
+            .login-container {
+                flex-direction: column;
+                min-height: auto;
+                max-width: 500px;
+            }
+            .login-left {
+                padding: 40px 30px;
+            }
+            .login-right {
+                padding: 40px 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                border-radius: 16px;
+            }
+            .login-left,
+            .login-right {
+                padding: 30px 20px;
+            }
+            .logo-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            .logo-frame {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            .login-header h2 {
+                font-size: 28px;
+            }
+            .options {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-left">
+            <div class="floating-shapes">
+                <div class="shape"></div>
+                <div class="shape"></div>
+                <div class="shape"></div>
+                <div class="shape"></div>
+            </div>
+
+            <div class="logo-section">
+                <div class="logo-frame">
+                    <!-- THAY THẾ ĐƯỜNG DẪN LOGO CỦA BẠN Ở ĐÂY -->
+                    <img src="319logo.png" alt="Tổng Công ty 319 Bộ Quốc phòng" onerror="this.style.display='none'; this.parentNode.innerHTML='319'; this.parentNode.style.color='#1a73e8'; this.parentNode.style.fontWeight='bold'; this.parentNode.style.fontSize='32px'; this.parentNode.style.display='flex'; this.parentNode.style.alignItems='center'; this.parentNode.style.justifyContent='center';">
+                </div>
+                <div>
+                    <div class="logo-text">TỔNG CÔNG TY 319</div>
+                    <div class="logo-subtext">BỘ QUỐC PHÒNG</div>
+                </div>
+            </div>
+
+            <div class="welcome-text">
+                <h1>Hệ thống Bản đồ Công trình</h1>
+                <p>Quản lý và theo dõi các công trình trên toàn quốc với công nghệ hiện đại và giao diện trực quan</p>
+            </div>
+
+            <ul class="features">
+                <li><i class="fas fa-map-marked-alt"></i> Bản đồ công trình trực quan</li>
+                <li><i class="fas fa-chart-line"></i> Theo dõi tiến độ thi công</li>
+                <li><i class="fas fa-database"></i> Quản lý thông tin tập trung</li>
+                <li><i class="fas fa-shield-alt"></i> Bảo mật thông tin an toàn</li>
+                <li><i class="fas fa-mobile-alt"></i> Tương thích mọi thiết bị</li>
+            </ul>
+        </div>
+
+        <div class="login-right">
+            <div class="login-header">
+                <h2>Đăng nhập hệ thống</h2>
+                <p>Vui lòng nhập thông tin tài khoản của bạn để truy cập hệ thống</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="Nhập tên đăng nhập" required>
+                        <div class="input-highlight"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <div class="input-highlight"></div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <!-- ĐÃ SỬA: Thêm href cho liên kết quên mật khẩu -->
+                    <a href="forgot-password.html" class="forgot-password">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn-login">ĐĂNG NHẬP</button>
+
+                <div id="errorMessage" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> Tên đăng nhập hoặc mật khẩu không chính xác!
+                </div>
+            </form>
+
+            <div class="divider">Hoặc đăng nhập với</div>
+
+            <div class="social-login">
+                <div class="social-btn facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </div>
+                <div class="social-btn google">
+                    <i class="fab fa-google"></i>
+                </div>
+                <div class="social-btn microsoft">
+                    <i class="fab fa-microsoft"></i>
+                </div>
+            </div>
+
+            <div class="register-link">
+                <!-- ĐÃ SỬA: Thêm href cho liên kết đăng ký -->
+                Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+            </div>
+
+            <div class="footer">
+                Hệ thống bản đồ công trình 319 - Phiên bản 3.0 được tạo bởi đội ngũ kĩ sư BIM<br> © 2025 Tổng Công ty 319 - Bộ Quốc phòng. Mọi quyền được bảo lưu.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle hiển thị mật khẩu
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        const eyeIcon = togglePassword.querySelector('i');
+
+        togglePassword.addEventListener('click', function() {
+            // Toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // Toggle the eye icon
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Kiểm tra đăng nhập (thay đổi thông tin đăng nhập theo nhu cầu)
+            if (username === 'admin' && password === '319') {
+                // Lưu thông tin đăng nhập
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                if (remember) {
+                    localStorage.setItem('rememberLogin', 'true');
+                }
+
+                // Hiệu ứng loading trước khi chuyển trang
+                const btn = document.querySelector('.btn-login');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng nhập...';
+                btn.disabled = true;
+
+                // Thêm hiệu ứng thành công
+                document.querySelector('.login-container').style.animation = 'successPulse 1.5s ease';
+
+                // Chuyển hướng đến trang bản đồ sau 1.5 giây
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // Thay đổi đường dẫn tới trang map của bạn
+                }, 1500);
+            } else {
+                errorMessage.style.display = 'block';
+                // Ẩn thông báo lỗi sau 5 giây
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+
+
+
+        // Kiểm tra nếu đã có thông tin đăng nhập được ghi nhớ
+        window.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('rememberLogin') === 'true' && localStorage.getItem('username')) {
+                document.getElementById('username').value = localStorage.getItem('username');
+                document.getElementById('remember').checked = true;
+            }
+
+            // Thêm CSS animation cho success
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes successPulse {
+                    0% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); }
+                    50% { box-shadow: 0 12px 40px rgba(52, 168, 83, 0.4); }
+                    100% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+
+</html>

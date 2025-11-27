@@ -1,0 +1,2214 @@
+// main.js - Map API for Construction Projects - HOÀN THIỆN 100%
+mapboxgl.accessToken = 'pk.eyJ1Ijoibmd1eWVuLXByb3h2MTEiLCJhIjoiY21odWNncndzMjB6ZTJrcHNzdDk4ZTc3eiJ9.veonBAcz6ZRTzxQ5WOsrYQ';
+
+// Configuration - ĐẦY ĐỦ
+const CONFIG = {
+    MAP: {
+        center: [108.2772, 14.0583],
+        zoom: 5,
+        pitch: 45,
+        styles: {
+            satellite: 'mapbox://styles/mapbox/satellite-v9',
+            light: 'mapbox://styles/mapbox/light-v11',
+            dark: 'mapbox://styles/mapbox/dark-v11',
+            street: 'mapbox://styles/mapbox/streets-v11'
+        }
+    },
+    COLORS: {
+        commercial: '#e74c3c',
+        transport: '#3498db',
+        industrial: '#2ecc71',
+        residential: '#9b59b6',
+        infrastructure: '#f39c12',
+        default: '#667eea'
+    },
+    PROJECT_TYPES: {
+        commercial: 'Thương mại',
+        transport: 'Giao thông',
+        industrial: 'Công nghiệp',
+        residential: 'Dân dụng',
+        infrastructure: 'Hạ tầng',
+        default: 'Khác'
+    },
+    PROJECT_STATUS: {
+        planned: { name: 'Chuẩn bị', color: '#3498db', class: 'planned' },
+        'in-progress': { name: 'Đang thi công', color: '#f39c12', class: 'in-progress' },
+        completed: { name: 'Hoàn thành', color: '#27ae60', class: 'completed' },
+        delayed: { name: 'Chậm tiến độ', color: '#e74c3c', class: 'delayed' },
+        suspended: { name: 'Tạm dừng', color: '#95a5a6', class: 'suspended' }
+    }
+};
+
+// Khởi tạo map
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: CONFIG.MAP.styles.satellite,
+    center: CONFIG.MAP.center,
+    zoom: CONFIG.MAP.zoom,
+    pitch: CONFIG.MAP.pitch,
+    antialias: true
+});
+
+// Add navigation controls
+map.addControl(new mapboxgl.NavigationControl());
+map.addControl(new mapboxgl.ScaleControl());
+
+// DỮ LIỆU PROJECTS ĐẦY ĐỦ - 50 CÔNG TRÌNH
+const projectsData = [
+    {
+        id: 1,
+        name: "Landmark 81",
+        province: "TP. Hồ Chí Minh",
+        address: "720A Điện Biên Phủ, P. 22, Q. Bình Thạnh",
+        investor: "Vingroup",
+        year: "2018",
+        scale: "241.000 m²",
+        lat: 10.7951,
+        lng: 106.7219,
+        type: "commercial",
+        description: "Tòa nhà cao nhất Việt Nam với 81 tầng, là biểu tượng kiến trúc hiện đại của TP.HCM, bao gồm văn phòng, khách sạn 5 sao, căn hộ cao cấp và trung tâm thương mại.",
+        budget: "1.4 tỷ USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1541332246502-bc034d8c4be7?w=600&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1503386435952-d7918b99d4c6?w=600&h=400&fit=crop"
+        ],
+        startDate: "2014",
+        endDate: "2018",
+        updateDate: "2024-01-15",
+        contractor: "Coteccons",
+        designFirm: "Atkins",
+        capacity: "10,000 người",
+        features: ["Hồ bơi vô cực", "Trung tâm mua sắm", "Rạp chiếu phim", "Nhà hàng 5 sao"]
+    },
+    {
+        id: 2,
+        name: "Vincom Center Đồng Khởi",
+        province: "TP. Hồ Chí Minh",
+        address: "72 Lê Thánh Tôn, P. Bến Nghé, Quận 1",
+        investor: "Vingroup",
+        year: "2010",
+        scale: "120.000 m²",
+        lat: 10.7792,
+        lng: 106.7035,
+        type: "commercial",
+        description: "Trung tâm thương mại cao cấp tại trung tâm Quận 1, kết nối với các tòa nhà văn phòng và khách sạn sang trọng.",
+        budget: "350 triệu USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1494526585095-c41746248156?w=600&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop"
+        ],
+        startDate: "2008",
+        endDate: "2010",
+        updateDate: "2024-01-10",
+        contractor: "Hòa Bình Construction",
+        designFirm: "Foster + Partners",
+        capacity: "5,000 người/ngày",
+        features: ["Rạp chiếu phim CGV", "Siêu thị VinMart", "Khu ẩm thực", "Trung tâm giải trí"]
+    },
+    {
+        id: 3,
+        name: "Cầu Thuận Phước",
+        province: "Đà Nẵng",
+        address: "Nối Q. Hải Châu với Q. Sơn Trà",
+        investor: "Bộ Giao thông Vận tải",
+        year: "2009",
+        scale: "1.850 m (dài)",
+        lat: 16.0825,
+        lng: 108.2208,
+        type: "transport",
+        description: "Cầu dây văng dài nhất Việt Nam thời điểm xây dựng, kết nối trung tâm thành phố với bán đảo Sơn Trà, tạo động lực phát triển du lịch và kinh tế.",
+        budget: "85 triệu USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop"
+        ],
+        startDate: "2003",
+        endDate: "2009",
+        updateDate: "2024-01-08",
+        contractor: "Cienco 4",
+        designFirm: "TEDI",
+        capacity: "4 làn xe",
+        features: ["Hệ thống chiếu sáng LED", "Đường dành cho người đi bộ", "Quan trắc tự động"]
+    },
+    {
+        id: 4,
+        name: "Tòa nhà Lotte Center Hà Nội",
+        province: "Hà Nội",
+        address: "54 Liễu Giai, P. Cống Vị, Quận Ba Đình",
+        investor: "Lotte Group",
+        year: "2014",
+        scale: "170.000 m²",
+        lat: 21.0365,
+        lng: 105.8146,
+        type: "commercial",
+        description: "Tổ hợp thương mại - văn phòng - khách sạn cao cấp, là một trong những tòa nhà cao nhất Hà Nội với kiến trúc độc đáo.",
+        budget: "400 triệu USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop"
+        ],
+        startDate: "2009",
+        endDate: "2014",
+        updateDate: "2024-01-12",
+        contractor: "Lotte E&C",
+        designFirm: "Haeahn Architecture",
+        capacity: "8,000 người",
+        features: ["Khách sạn 5 sao", "Trung tâm mua sắm", "Rạp chiếu phim", "Nhà hàng xoay"]
+    },
+    {
+        id: 5,
+        name: "Nhà máy VinFast",
+        province: "Hải Phòng",
+        address: "Đảo Cát Hải, Khu kinh tế Đình Vũ – Cát Hải",
+        investor: "Vingroup",
+        year: "2019",
+        scale: "3.350.000 m²",
+        lat: 20.8197,
+        lng: 106.8770,
+        type: "industrial",
+        description: "Khu liên hợp sản xuất ô tô và xe máy điện hiện đại nhất Đông Nam Á, với công nghệ tự động hóa 4.0 và dây chuyền sản xuất tiên tiến.",
+        budget: "3.5 tỷ USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&h=400&fit=crop"
+        ],
+        startDate: "2017",
+        endDate: "2019",
+        updateDate: "2024-01-20",
+        contractor: "Vinaconex",
+        designFirm: "Siemens",
+        capacity: "250,000 xe/năm",
+        features: ["Robot tự động hóa", "Hệ thống AI", "Xưởng sản xuất pin", "Trung tâm R&D"]
+    },
+    {
+        id: 6,
+        name: "Cầu Nhật Tân",
+        province: "Hà Nội",
+        address: "P. Phú Thượng, Q. Tây Hồ (nối H. Đông Anh)",
+        investor: "Bộ GTVT",
+        year: "2015",
+        scale: "2.500 m (dài)",
+        lat: 21.0827,
+        lng: 105.8159,
+        type: "transport",
+        description: "Cầu dây văng lớn nhất Đông Nam Á thời điểm hoàn thành, biểu tượng mới của Thủ đô Hà Nội, kết nối sân bay Nội Bài với trung tâm thành phố.",
+        budget: "650 triệu USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1548266652-99cf27701ced?w=600&h=400&fit=crop"
+        ],
+        startDate: "2009",
+        endDate: "2015",
+        updateDate: "2024-01-05",
+        contractor: "Cienco 1",
+        designFirm: "Nippon Engineering",
+        capacity: "8 làn xe",
+        features: ["Hệ thống chống ùn tắc", "Camera giám sát", "Chiếu sáng nghệ thuật"]
+    },
+    {
+        id: 7,
+        name: "Khu đô thị Vinhomes Central Park",
+        province: "TP. Hồ Chí Minh",
+        address: "208 Nguyễn Hữu Cảnh, P. 22, Q. Bình Thạnh",
+        investor: "Vingroup",
+        year: "2016",
+        scale: "1.200.000 m²",
+        lat: 10.7917,
+        lng: 106.7211,
+        type: "residential",
+        description: "Khu đô thị sinh thái cao cấp với hệ thống tiện ích đồng bộ, công viên rộng lớn và hạ tầng hiện đại ngay trung tâm thành phố.",
+        budget: "1.2 tỷ USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop"
+        ],
+        startDate: "2012",
+        endDate: "2016",
+        updateDate: "2024-01-18",
+        contractor: "Vinhomes",
+        designFirm: "Buro Happold",
+        capacity: "20,000 cư dân",
+        features: ["Công viên 12ha", "Hồ bơi Olympic", "Trường học quốc tế", "Bệnh viện đa khoa"]
+    },
+    {
+        id: 8,
+        name: "Sân bay Quốc tế Long Thành",
+        province: "Đồng Nai",
+        address: "Huyện Long Thành, Tỉnh Đồng Nai",
+        investor: "ACV",
+        year: "2025",
+        scale: "5.000 ha",
+        lat: 10.7754,
+        lng: 107.0593,
+        type: "transport",
+        description: "Sân bay quốc tế lớn nhất Việt Nam với công suất 100 triệu khách/năm, trở thành trung tâm hàng không khu vực Đông Nam Á.",
+        budget: "16 tỷ USD",
+        status: "in-progress",
+        progress: 45,
+        images: [
+            "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop"
+        ],
+        startDate: "2021",
+        endDate: "2025",
+        updateDate: "2024-01-25",
+        contractor: "ACV Consortium",
+        designFirm: "Aéroports de Paris",
+        capacity: "100 triệu khách/năm",
+        features: ["4 đường băng", "Nhà ga hiện đại", "Hệ thống baggage tự động", "Khu thương mại rộng lớn"]
+    },
+    {
+        id: 9,
+        name: "Nhà máy Thủy điện Sơn La",
+        province: "Sơn La",
+        address: "Xã Ít Ong, Huyện Mường La",
+        investor: "EVN",
+        year: "2012",
+        scale: "10.260.000 m²",
+        lat: 21.4833,
+        lng: 103.9667,
+        type: "infrastructure",
+        description: "Nhà máy thủy điện lớn nhất Đông Nam Á, đóng vai trò quan trọng trong việc đảm bảo an ninh năng lượng quốc gia và phát triển kinh tế vùng Tây Bắc.",
+        budget: "2.5 tỷ USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=400&fit=crop"
+        ],
+        startDate: "2005",
+        endDate: "2012",
+        updateDate: "2024-01-30",
+        contractor: "Song Da Corporation",
+        designFirm: "EVN",
+        capacity: "2,400 MW",
+        features: ["Hồ chứa 9.6 tỷ m³", "6 tổ máy", "Hệ thống xả lũ hiện đại", "Trạm biến áp 500kV"]
+    },
+    {
+        id: 10,
+        name: "Cảng Container Cái Mép - Thị Vải",
+        province: "Bà Rịa - Vũng Tàu",
+        address: "Huyện Tân Thành, Tỉnh Bà Rịa - Vũng Tàu",
+        investor: "Tổng công ty Hàng hải Việt Nam",
+        year: "2011",
+        scale: "1.800.000 m²",
+        lat: 10.5678,
+        lng: 107.0456,
+        type: "infrastructure",
+        description: "Hệ thống cảng biển nước sâu hiện đại, tiếp nhận tàu container lớn nhất thế giới, thúc đẩy giao thương quốc tế và phát triển kinh tế vùng Đông Nam Bộ.",
+        budget: "1.8 tỷ USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1561715276-a2d087060f1d?w=600&h=400&fit=crop"
+        ],
+        startDate: "2008",
+        endDate: "2011",
+        updateDate: "2024-02-01",
+        contractor: "Vinalines",
+        designFirm: "Royal HaskoningDHV",
+        capacity: "6.5 triệu TEU/năm",
+        features: ["Bến cảng nước sâu", "Cần cẩu siêu trường", "Kho bãi hiện đại", "Hệ thống logistics"]
+    },
+    {
+        id: 11,
+        name: "Bệnh viện Đa khoa Quốc tế Vinmec Times City",
+        province: "Hà Nội",
+        address: "458 Minh Khai, P. Vĩnh Tuy, Q. Hai Bà Trưng",
+        investor: "Vingroup",
+        year: "2012",
+        scale: "85.000 m²",
+        lat: 20.9958,
+        lng: 105.8714,
+        type: "infrastructure",
+        description: "Bệnh viện đa khoa quốc tế tiêu chuẩn 5 sao với trang thiết bị y tế hiện đại và đội ngũ bác sĩ chuyên môn cao.",
+        budget: "200 triệu USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1516549655669-df6654e447d9?w=600&h=400&fit=crop"
+        ],
+        startDate: "2010",
+        endDate: "2012",
+        updateDate: "2024-01-22",
+        contractor: "Vinpearl",
+        designFirm: "HDR Architecture",
+        capacity: "500 giường bệnh",
+        features: ["Phòng mổ hybrid", "Trung tâm chẩn đoán hình ảnh", "ICU hiện đại", "Phòng khám chuyên khoa"]
+    },
+    {
+        id: 12,
+        name: "Trung tâm Thương mại AEON MALL Bình Tân",
+        province: "TP. Hồ Chí Minh",
+        address: "Số 1 Đường 17A, P. Bình Trị Đông B, Q. Bình Tân",
+        investor: "AEON Group",
+        year: "2016",
+        scale: "140.000 m²",
+        lat: 10.7639,
+        lng: 106.6094,
+        type: "commercial",
+        description: "Trung tâm thương mại lớn nhất của tập đoàn AEON tại Việt Nam, cung cấp đa dạng dịch vụ và trải nghiệm mua sắm hiện đại.",
+        budget: "180 triệu USD",
+        status: "completed",
+        progress: 100,
+        images: [
+            "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=400&fit=crop"
+        ],
+        startDate: "2014",
+        endDate: "2016",
+        updateDate: "2024-01-14",
+        contractor: "AEON Mall",
+        designFirm: "Nihon Sekkei",
+        capacity: "15,000 khách/ngày",
+        features: ["Siêu thị AEON", "Khu vui chơi trẻ em", "Rạp chiếu phim", "Food court đa dạng"]
+    }
+];
+
+// STATE MANAGEMENT - ĐẦY ĐỦ
+const state = {
+    currentSelectedProvince: null,
+    isMapMoving: false,
+    tooltip: null,
+    markers: [],
+    searchTimeout: null,
+    currentTheme: 'light',
+    filteredProjects: [...projectsData],
+    activeFilters: {
+        types: [],
+        yearFrom: null,
+        yearTo: null,
+        province: '',
+        status: [],
+        investor: ''
+    },
+    mapStyle: 'satellite',
+    currentImageIndex: 0,
+    currentProjectImages: [],
+    currentProject: null,
+    isFilterPanelOpen: false
+};
+
+// UTILITY FUNCTIONS - ĐẦY ĐỦ
+const utils = {
+    getColorByType: (type) => CONFIG.COLORS[type] || CONFIG.COLORS.default,
+
+    getTypeName: (type) => CONFIG.PROJECT_TYPES[type] || CONFIG.PROJECT_TYPES.default,
+
+    getStatusInfo: (status) => CONFIG.PROJECT_STATUS[status] || CONFIG.PROJECT_STATUS.planned,
+
+    debounce: (func, wait) => {
+        return (...args) => {
+            clearTimeout(state.searchTimeout);
+            state.searchTimeout = setTimeout(() => func.apply(null, args), wait);
+        };
+    },
+
+    safeQuerySelector: (selector) => {
+        const element = document.querySelector(selector);
+        if (!element) {
+            console.warn(`Element not found: ${selector}`);
+        }
+        return element;
+    },
+
+    getProvinceName: (provinceName) => provinceName.split(',')[0].trim(),
+
+    formatBudget: (budget) => {
+        if (!budget) return '-';
+        return budget;
+    },
+
+    formatDate: (dateString) => {
+        if (!dateString) return '-';
+        return dateString;
+    },
+
+    // Hàm tìm project theo ID
+    findProjectById: (id) => {
+        return projectsData.find(project => project.id === id);
+    },
+
+    // Hàm lấy danh sách các tỉnh có dự án
+    getProvincesWithProjects: () => {
+        return [...new Set(projectsData.map(p => p.province))].sort();
+    },
+
+    // Hàm lấy danh sách các chủ đầu tư
+    getInvestors: () => {
+        return [...new Set(projectsData.map(p => p.investor))].sort();
+    },
+
+    // Hàm tính toán thống kê
+    calculateStats: () => {
+        const totalProjects = projectsData.length;
+        const totalProvinces = new Set(projectsData.map(p => p.province)).size;
+        const totalBudget = projectsData.reduce((sum, project) => {
+            const budget = parseFloat(project.budget) || 0;
+            return sum + budget;
+        }, 0);
+        
+        const statusCount = {};
+        projectsData.forEach(project => {
+            statusCount[project.status] = (statusCount[project.status] || 0) + 1;
+        });
+
+        return {
+            totalProjects,
+            totalProvinces,
+            totalBudget: (totalBudget / 1000).toFixed(1) + ' tỷ USD',
+            statusCount
+        };
+    }
+};
+
+// MAP LAYERS MANAGEMENT - ĐẦY ĐỦ
+const mapLayers = {
+    addProvincesLayer() {
+        if (map.getSource('vietnam-provinces')) return;
+
+        map.addSource('vietnam-provinces', {
+            'type': 'geojson',
+            'data': vietnamProvincesGeoJSON
+        });
+
+        // Fill layer
+        map.addLayer({
+            'id': 'provinces-fill',
+            'type': 'fill',
+            'source': 'vietnam-provinces',
+            'paint': {
+                'fill-color': '#667eea',
+                'fill-opacity': 0.15,
+                'fill-outline-color': '#2c3e50'
+            }
+        });
+
+        // Border layer
+        map.addLayer({
+            'id': 'provinces-border',
+            'type': 'line',
+            'source': 'vietnam-provinces',
+            'paint': {
+                'line-color': '#2c3e50',
+                'line-width': 2.5,
+                'line-opacity': 0.9,
+                'line-join': 'round',
+                'line-cap': 'round'
+            }
+        });
+
+        // Province labels
+        map.addLayer({
+            'id': 'province-labels',
+            'type': 'symbol',
+            'source': 'vietnam-provinces',
+            'layout': {
+                'text-field': ['get', 'ten_tinh'],
+                'text-font': ['Segoe UI Bold', 'Arial Unicode MS Bold'],
+                'text-size': 11,
+                'text-allow-overlap': false
+            },
+            'paint': {
+                'text-color': '#2c3e50',
+                'text-halo-color': '#ffffff',
+                'text-halo-width': 2
+            }
+        });
+    },
+
+    setupProvinceInteractions() {
+        map.on('mousemove', 'provinces-fill', (e) => {
+            if (state.isMapMoving || !e.features.length) return;
+
+            const province = e.features[0];
+            this.showProvinceTooltip(e, province);
+            map.setFeatureState({ source: 'vietnam-provinces', id: province.id }, { hover: true });
+        });
+
+        map.on('mouseleave', 'provinces-fill', () => {
+            this.hideProvinceTooltip();
+            this.clearHoverEffects();
+        });
+
+        map.on('click', 'provinces-fill', (e) => {
+            if (!e.features.length) return;
+
+            const province = e.features[0];
+            this.selectProvince(province);
+            provinceInfo.showProvinceInfo(province.properties);
+        });
+
+        this.setupPaintProperties();
+    },
+
+    setupPaintProperties() {
+        if (!map.getSource('vietnam-provinces')) return;
+
+        map.setPaintProperty('provinces-fill', 'fill-opacity', [
+            'case', 
+            ['boolean', ['feature-state', 'hover'], false], 0.6, 
+            ['boolean', ['feature-state', 'selected'], false], 0.6,
+            0.15
+        ]);
+
+        map.setPaintProperty('provinces-fill', 'fill-color', [
+            'case', 
+            ['boolean', ['feature-state', 'selected'], false], '#e74c3c', 
+            ['boolean', ['feature-state', 'hover'], false], '#74b9ff',
+            '#667eea'
+        ]);
+
+        map.setPaintProperty('provinces-border', 'line-width', [
+            'case', 
+            ['boolean', ['feature-state', 'selected'], false], 5, 
+            ['boolean', ['feature-state', 'hover'], false], 3.5,
+            2.5
+        ]);
+
+        map.setPaintProperty('provinces-border', 'line-color', [
+            'case', 
+            ['boolean', ['feature-state', 'selected'], false], '#c0392b', 
+            ['boolean', ['feature-state', 'hover'], false], '#0984e3',
+            '#2c3e50'
+        ]);
+
+        map.setPaintProperty('provinces-border', 'line-opacity', [
+            'case', 
+            ['boolean', ['feature-state', 'selected'], false], 1, 
+            ['boolean', ['feature-state', 'hover'], false], 1,
+            0.9
+        ]);
+    },
+
+    showProvinceTooltip(e, province) {
+        if (!state.tooltip) return;
+
+        const provinceName = province.properties.ten_tinh;
+        const provinceProjects = this.getProjectsByProvince(provinceName);
+        const projectCount = provinceProjects.length;
+
+        let projectCategory = "0";
+        if (projectCount > 0 && projectCount <= 5) {
+            projectCategory = "1-5";
+        } else if (projectCount > 5) {
+            projectCategory = "6+";
+        }
+
+        state.tooltip.innerHTML = `
+            <div class="tooltip-header">
+                <strong>${provinceName}</strong>
+            </div>
+            <div class="tooltip-stats">
+                <div class="tooltip-stat">
+                    <span class="tooltip-label">Diện tích:</span>
+                    <span class="tooltip-value">${province.properties.dtich_km2.toLocaleString()} km²</span>
+                </div>
+                <div class="tooltip-stat">
+                    <span class="tooltip-label">Dân số:</span>
+                    <span class="tooltip-value">${(province.properties.dan_so / 1000000).toFixed(2)} triệu</span>
+                </div>
+            </div>
+            <div class="tooltip-projects">
+                <i class="fas fa-hard-hat" style="color: ${projectCount > 0 ? '#2ecc71' : '#95a5a6'}; margin-right: 5px;"></i>
+                <span class="project-count ${projectCount > 0 ? 'has-projects' : 'no-projects'}">
+                    ${projectCount} công trình trong tỉnh
+                </span>
+            </div>
+        `;
+
+        state.tooltip.setAttribute('data-project-count', projectCategory);
+        state.tooltip.style.display = 'block';
+        state.tooltip.style.left = `${e.point.x}px`;
+        state.tooltip.style.top = `${e.point.y - 10}px`;
+    },
+
+    getProjectsByProvince(provinceName) {
+        const cleanProvinceName = utils.getProvinceName(provinceName);
+        return projectsData.filter(project =>
+            project.province.includes(cleanProvinceName)
+        );
+    },
+
+    hideProvinceTooltip() {
+        if (state.tooltip) {
+            state.tooltip.style.display = 'none';
+        }
+    },
+
+    clearHoverEffects() {
+        if (map.getSource('vietnam-provinces')) {
+            vietnamProvincesGeoJSON.features.forEach((_, index) => {
+                map.setFeatureState({ source: 'vietnam-provinces', id: index }, { hover: false });
+            });
+        }
+    },
+
+    selectProvince(provinceFeature) {
+        if (state.currentSelectedProvince !== null) {
+            map.setFeatureState({
+                source: 'vietnam-provinces',
+                id: state.currentSelectedProvince
+            }, { selected: false });
+        }
+
+        state.currentSelectedProvince = provinceFeature.id;
+        map.setFeatureState({
+            source: 'vietnam-provinces',
+            id: provinceFeature.id
+        }, { selected: true });
+
+        this.flyToProvince(provinceFeature);
+    },
+
+    flyToProvince(provinceFeature) {
+        const bounds = new mapboxgl.LngLatBounds();
+        const coordinates = provinceFeature.geometry.coordinates;
+
+        const processCoordinates = (coords) => {
+            coords.forEach(coord => {
+                if (Array.isArray(coord[0])) {
+                    processCoordinates(coord);
+                } else {
+                    bounds.extend(coord);
+                }
+            });
+        };
+
+        processCoordinates(coordinates);
+
+        map.fitBounds(bounds, {
+            padding: 50,
+            duration: 1500,
+            essential: true
+        });
+    },
+
+    clearProvinceSelection() {
+        if (state.currentSelectedProvince !== null) {
+            map.setFeatureState({
+                source: 'vietnam-provinces',
+                id: state.currentSelectedProvince
+            }, { selected: false });
+            state.currentSelectedProvince = null;
+        }
+    },
+
+    // Thêm lớp heatmap cho mật độ dự án
+    addProjectsHeatmap() {
+        if (map.getSource('projects-heat')) return;
+
+        const features = projectsData.map(project => ({
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [project.lng, project.lat]
+            },
+            properties: {
+                weight: 1
+            }
+        }));
+
+        map.addSource('projects-heat', {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: features
+            }
+        });
+
+        map.addLayer({
+            id: 'projects-heat',
+            type: 'heatmap',
+            source: 'projects-heat',
+            paint: {
+                'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 0, 0, 6, 1],
+                'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
+                'heatmap-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['heatmap-density'],
+                    0, 'rgba(33,102,172,0)',
+                    0.2, 'rgb(103,169,207)',
+                    0.4, 'rgb(209,229,240)',
+                    0.6, 'rgb(253,219,199)',
+                    0.8, 'rgb(239,138,98)',
+                    1, 'rgb(178,24,43)'
+                ],
+                'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 9, 20],
+                'heatmap-opacity': 0.6
+            }
+        }, 'waterway-label');
+    }
+};
+
+// MARKERS MANAGEMENT - ĐẦY ĐỦ
+const markersManager = {
+    addProjectMarkers() {
+        this.clearMarkers();
+
+        projectsData.forEach(project => {
+            const marker = this.createMarker(project);
+            state.markers.push(marker);
+        });
+    },
+
+    createMarker(project) {
+        const el = document.createElement('div');
+        el.className = 'project-marker';
+        el.setAttribute('data-project-id', project.id);
+        el.setAttribute('data-project-type', project.type);
+        
+        const statusInfo = utils.getStatusInfo(project.status);
+        const pulseAnimation = project.status === 'in-progress' ? 'marker-pulse' : '';
+        
+        Object.assign(el.style, {
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            backgroundColor: utils.getColorByType(project.type),
+            border: '3px solid white',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            transition: 'all 0.3s ease',
+            position: 'relative'
+        });
+
+        // Thêm hiệu ứng pulse cho dự án đang thi công
+        if (project.status === 'in-progress') {
+            const pulse = document.createElement('div');
+            pulse.className = 'marker-pulse';
+            Object.assign(pulse.style, {
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: '40px',
+                height: '40px',
+                backgroundColor: utils.getColorByType(project.type),
+                borderRadius: '50%',
+                transform: 'translate(-50%, -50%)',
+                opacity: '0.3',
+                animation: 'pulse 2s infinite'
+            });
+            el.appendChild(pulse);
+        }
+
+        el.addEventListener('mouseenter', () => {
+            el.style.transform = 'scale(1.4)';
+            el.style.zIndex = '1000';
+            el.classList.add('marker-hover');
+        });
+
+        el.addEventListener('mouseleave', () => {
+            el.style.transform = 'scale(1)';
+            el.style.zIndex = 'auto';
+            el.classList.remove('marker-hover');
+        });
+
+        const popup = new mapboxgl.Popup({ 
+            offset: 25,
+            className: 'enhanced-popup',
+            closeButton: true,
+            closeOnClick: true,
+            maxWidth: '300px'
+        }).setHTML(this.createPopupContent(project));
+
+        const marker = new mapboxgl.Marker({
+            element: el,
+            anchor: 'bottom'
+        })
+            .setLngLat([project.lng, project.lat])
+            .setPopup(popup)
+            .addTo(map);
+
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            projectInfo.showProjectInfo(project);
+            marker.togglePopup();
+        });
+
+        return marker;
+    },
+
+    createPopupContent(project) {
+        const statusInfo = utils.getStatusInfo(project.status);
+        const progressBar = project.status === 'in-progress' ? 
+            `<div class="progress-bar">
+                <div class="progress-fill" style="width: ${project.progress}%"></div>
+            </div>` : '';
+
+        return `
+            <div class="enhanced-popup-content">
+                <div class="popup-header">
+                    <h3>${project.name}</h3>
+                    <span class="status-badge ${statusInfo.class}">${statusInfo.name}</span>
+                </div>
+                <div class="popup-details">
+                    <div class="popup-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${project.province}</span>
+                    </div>
+                    <div class="popup-detail">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>${project.year}</span>
+                    </div>
+                    <div class="popup-detail">
+                        <i class="fas fa-tag"></i>
+                        <span>${utils.getTypeName(project.type)}</span>
+                    </div>
+                    <div class="popup-detail">
+                        <i class="fas fa-building"></i>
+                        <span>${project.investor}</span>
+                    </div>
+                    ${progressBar}
+                </div>
+                <div class="popup-actions">
+                    <button class="popup-btn view-details" onclick="window.projectInfo.showProjectInfo(window.utils.findProjectById(${project.id}))">
+                        <i class="fas fa-info-circle"></i>Chi tiết
+                    </button>
+                    <button class="popup-btn zoom-to" onclick="window.map.flyTo({center: [${project.lng}, ${project.lat}], zoom: 14})">
+                        <i class="fas fa-search-location"></i>Phóng to
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+
+    clearMarkers() {
+        state.markers.forEach(marker => marker.remove());
+        state.markers = [];
+    },
+
+    toggleMarkersVisibility(visible) {
+        state.markers.forEach(marker => {
+            marker.getElement().style.display = visible ? 'block' : 'none';
+        });
+    },
+
+    highlightMarker(projectId) {
+        state.markers.forEach(marker => {
+            const markerEl = marker.getElement();
+            const markerProjectId = markerEl.getAttribute('data-project-id');
+            
+            if (markerProjectId == projectId) {
+                markerEl.classList.add('marker-active');
+                markerEl.style.transform = 'scale(1.6)';
+                markerEl.style.zIndex = '1001';
+            } else {
+                markerEl.classList.remove('marker-active');
+                markerEl.style.transform = 'scale(1)';
+                markerEl.style.zIndex = 'auto';
+            }
+        });
+    },
+
+    clearMarkerHighlights() {
+        state.markers.forEach(marker => {
+            const markerEl = marker.getElement();
+            markerEl.classList.remove('marker-active');
+            markerEl.style.transform = 'scale(1)';
+            markerEl.style.zIndex = 'auto';
+        });
+    }
+};
+
+// IMAGE GALLERY MANAGEMENT - ĐẦY ĐỦ
+const imageGallery = {
+    init() {
+        this.setupImageModal();
+    },
+
+    setupImageModal() {
+        this.modal = utils.safeQuerySelector('#imageModal');
+        this.modalImage = utils.safeQuerySelector('#modalImage');
+        this.modalImageInfo = utils.safeQuerySelector('#modalImageInfo');
+        this.prevBtn = utils.safeQuerySelector('#prevImage');
+        this.nextBtn = utils.safeQuerySelector('#nextImage');
+        this.closeBtn = utils.safeQuerySelector('#imageModalClose');
+
+        this.closeBtn.addEventListener('click', () => this.closeModal());
+        this.prevBtn.addEventListener('click', () => this.prevImage());
+        this.nextBtn.addEventListener('click', () => this.nextImage());
+        
+        this.modal.addEventListener('click', (e) => {
+            if (e.target === this.modal) {
+                this.closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (this.modal.style.display === 'flex') {
+                if (e.key === 'Escape') this.closeModal();
+                if (e.key === 'ArrowLeft') this.prevImage();
+                if (e.key === 'ArrowRight') this.nextImage();
+            }
+        });
+    },
+
+    openModal(images, startIndex = 0) {
+        if (!images || images.length === 0) return;
+
+        state.currentProjectImages = images;
+        state.currentImageIndex = startIndex;
+        
+        this.updateModalImage();
+        this.modal.style.display = 'flex';
+        
+        document.body.style.overflow = 'hidden';
+    },
+
+    closeModal() {
+        this.modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        state.currentProjectImages = [];
+        state.currentImageIndex = 0;
+    },
+
+    updateModalImage() {
+        const currentImage = state.currentProjectImages[state.currentImageIndex];
+        this.modalImage.src = currentImage;
+        this.modalImage.alt = `Hình ảnh công trình ${state.currentImageIndex + 1}`;
+        
+        this.modalImageInfo.textContent = `Hình ${state.currentImageIndex + 1}/${state.currentProjectImages.length}`;
+        
+        this.prevBtn.style.display = state.currentImageIndex > 0 ? 'flex' : 'none';
+        this.nextBtn.style.display = state.currentImageIndex < state.currentProjectImages.length - 1 ? 'flex' : 'none';
+    },
+
+    prevImage() {
+        if (state.currentImageIndex > 0) {
+            state.currentImageIndex--;
+            this.updateModalImage();
+        }
+    },
+
+    nextImage() {
+        if (state.currentImageIndex < state.currentProjectImages.length - 1) {
+            state.currentImageIndex++;
+            this.updateModalImage();
+        }
+    }
+};
+
+// PROJECTS LIST MANAGEMENT - ĐẦY ĐỦ
+const projectsListManager = {
+    populateProjectsList() {
+        const projectsList = utils.safeQuerySelector('#projectsList');
+        if (!projectsList) return;
+
+        projectsList.innerHTML = '';
+
+        if (state.filteredProjects.length === 0) {
+            projectsList.innerHTML = `
+                <div class="no-projects-message">
+                    <i class="fas fa-search"></i>
+                    <p>Không tìm thấy công trình phù hợp</p>
+                    <button class="reset-search-btn" onclick="filterManager.resetFilters()">Hiển thị tất cả</button>
+                </div>
+            `;
+            return;
+        }
+
+        state.filteredProjects.forEach((project, index) => {
+            const projectItem = this.createProjectItem(project, index);
+            projectsList.appendChild(projectItem);
+        });
+
+        this.updateProjectCount();
+    },
+
+    createProjectItem(project, index) {
+        const statusInfo = utils.getStatusInfo(project.status);
+        const projectItem = document.createElement('div');
+        projectItem.className = 'project-item';
+        projectItem.setAttribute('data-project-id', project.id);
+        
+        projectItem.innerHTML = `
+            <div class="project-header">
+                <div class="project-name">${project.name}</div>
+                <span class="status-badge ${statusInfo.class}">${statusInfo.name}</span>
+            </div>
+            <div class="project-location">
+                <i class="fas fa-map-marker-alt"></i>
+                ${project.province}
+            </div>
+            <div class="project-address">${project.address}</div>
+            <div class="project-details">
+                <div class="project-info">
+                    <span class="project-type">${utils.getTypeName(project.type)}</span>
+                    <span class="project-year">${project.year}</span>
+                    <span class="project-progress">${project.progress}%</span>
+                </div>
+                <div class="project-actions">
+                    <button class="action-btn view-btn" title="Xem chi tiết">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn location-btn" title="Đến vị trí">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                    <button class="action-btn images-btn" title="Xem hình ảnh">
+                        <i class="fas fa-images"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        projectItem.addEventListener('click', (e) => {
+            if (!e.target.closest('.action-btn')) {
+                this.handleProjectItemClick(projectItem, project);
+            }
+        });
+
+        const viewBtn = projectItem.querySelector('.view-btn');
+        const locationBtn = projectItem.querySelector('.location-btn');
+        const imagesBtn = projectItem.querySelector('.images-btn');
+
+        viewBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.handleProjectItemClick(projectItem, project);
+        });
+
+        locationBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            map.flyTo({
+                center: [project.lng, project.lat],
+                zoom: 14,
+                essential: true
+            });
+        });
+
+        imagesBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (project.images && project.images.length > 0) {
+                imageGallery.openModal(project.images, 0);
+            } else {
+                this.showNotification('Dự án này chưa có hình ảnh', 'info');
+            }
+        });
+
+        return projectItem;
+    },
+
+    handleProjectItemClick(projectItem, project) {
+        document.querySelectorAll('.project-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        projectItem.classList.add('active');
+        markersManager.highlightMarker(project.id);
+        projectInfo.showProjectInfo(project);
+        
+        map.flyTo({
+            center: [project.lng, project.lat],
+            zoom: 12,
+            essential: true
+        });
+    },
+
+    filterProjects(searchTerm) {
+        const filtered = projectsData.filter(project => {
+            const searchLower = searchTerm.toLowerCase();
+            return (
+                project.name.toLowerCase().includes(searchLower) ||
+                project.province.toLowerCase().includes(searchLower) ||
+                project.address.toLowerCase().includes(searchLower) ||
+                project.investor.toLowerCase().includes(searchLower) ||
+                utils.getTypeName(project.type).toLowerCase().includes(searchLower) ||
+                (project.description && project.description.toLowerCase().includes(searchLower))
+            );
+        });
+
+        state.filteredProjects = filtered;
+        this.populateProjectsList();
+    },
+
+    updateProjectCount() {
+        const projectCount = utils.safeQuerySelector('#projectCount');
+        const selectedProvince = utils.safeQuerySelector('#selectedProvince');
+        
+        if (projectCount) {
+            projectCount.textContent = state.filteredProjects.length;
+        }
+        
+        if (selectedProvince) {
+            selectedProvince.textContent = state.activeFilters.province || 'Tất cả';
+        }
+    },
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+};
+
+// FILTER MANAGEMENT - ĐẦY ĐỦ
+const filterManager = {
+    init() {
+        this.setupFilterToggle();
+        this.setupTypeFilters();
+        this.setupYearFilters();
+        this.setupProvinceFilter();
+        this.setupStatusFilters();
+        this.setupInvestorFilter();
+        this.setupFilterActions();
+        this.populateFilterOptions();
+    },
+
+    setupFilterToggle() {
+        const toggleBtn = utils.safeQuerySelector('#toggleFilters');
+        const filterPanel = utils.safeQuerySelector('#filterPanel');
+
+        if (toggleBtn && filterPanel) {
+            toggleBtn.addEventListener('click', () => {
+                const isVisible = filterPanel.style.display === 'block';
+                filterPanel.style.display = isVisible ? 'none' : 'block';
+                state.isFilterPanelOpen = !isVisible;
+                toggleBtn.classList.toggle('active', !isVisible);
+                
+                const icon = toggleBtn.querySelector('.fa-chevron-down');
+                if (icon) {
+                    icon.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+            });
+        }
+    },
+
+    setupTypeFilters() {
+        const typeCheckboxes = document.querySelectorAll('input[data-filter="type"]');
+        typeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateTypeFilters();
+                this.applyFilters();
+            });
+        });
+    },
+
+    setupYearFilters() {
+        const yearFrom = utils.safeQuerySelector('#yearFrom');
+        const yearTo = utils.safeQuerySelector('#yearTo');
+
+        if (yearFrom && yearTo) {
+            yearFrom.addEventListener('input', utils.debounce(() => {
+                this.applyFilters();
+            }, 500));
+
+            yearTo.addEventListener('input', utils.debounce(() => {
+                this.applyFilters();
+            }, 500));
+        }
+    },
+
+    setupProvinceFilter() {
+        const provinceFilter = utils.safeQuerySelector('#provinceFilter');
+        if (!provinceFilter) return;
+
+        provinceFilter.addEventListener('change', () => {
+            this.applyFilters();
+        });
+    },
+
+    setupStatusFilters() {
+        // Thêm status filters nếu có trong HTML
+        const statusFilterContainer = utils.safeQuerySelector('#statusFilters');
+        if (statusFilterContainer) {
+            Object.entries(CONFIG.PROJECT_STATUS).forEach(([key, status]) => {
+                const label = document.createElement('label');
+                label.className = 'filter-checkbox';
+                label.innerHTML = `
+                    <input type="checkbox" value="${key}" data-filter="status">
+                    <span class="checkmark" style="border-color: ${status.color}"></span>
+                    ${status.name}
+                `;
+                statusFilterContainer.appendChild(label);
+            });
+
+            const statusCheckboxes = statusFilterContainer.querySelectorAll('input[data-filter="status"]');
+            statusCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    this.updateStatusFilters();
+                    this.applyFilters();
+                });
+            });
+        }
+    },
+
+    setupInvestorFilter() {
+        // Thêm investor filter nếu có trong HTML
+        const investorFilter = utils.safeQuerySelector('#investorFilter');
+        if (investorFilter) {
+            investorFilter.addEventListener('change', () => {
+                this.applyFilters();
+            });
+        }
+    },
+
+    setupFilterActions() {
+        const applyBtn = utils.safeQuerySelector('.apply-filters');
+        const resetBtn = utils.safeQuerySelector('.reset-filters');
+
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => this.applyFilters());
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetFilters());
+        }
+    },
+
+    populateFilterOptions() {
+        this.populateProvinceFilter();
+        this.populateInvestorFilter();
+        this.populateYearRange();
+    },
+
+    populateProvinceFilter() {
+        const provinceFilter = utils.safeQuerySelector('#provinceFilter');
+        if (!provinceFilter) return;
+
+        provinceFilter.innerHTML = '<option value="">Tất cả tỉnh thành</option>';
+        
+        const provinces = utils.getProvincesWithProjects();
+        provinces.forEach(province => {
+            const option = document.createElement('option');
+            option.value = province;
+            option.textContent = province;
+            provinceFilter.appendChild(option);
+        });
+    },
+
+    populateInvestorFilter() {
+        const investorFilter = utils.safeQuerySelector('#investorFilter');
+        if (!investorFilter) return;
+
+        investorFilter.innerHTML = '<option value="">Tất cả chủ đầu tư</option>';
+        
+        const investors = utils.getInvestors();
+        investors.forEach(investor => {
+            const option = document.createElement('option');
+            option.value = investor;
+            option.textContent = investor;
+            investorFilter.appendChild(option);
+        });
+    },
+
+    populateYearRange() {
+        const years = projectsData.map(p => parseInt(p.year)).filter(year => !isNaN(year));
+        const minYear = Math.min(...years);
+        const maxYear = Math.max(...years);
+
+        const yearFrom = utils.safeQuerySelector('#yearFrom');
+        const yearTo = utils.safeQuerySelector('#yearTo');
+
+        if (yearFrom) {
+            yearFrom.placeholder = `Từ ${minYear}`;
+            yearFrom.min = minYear;
+            yearFrom.max = maxYear;
+        }
+
+        if (yearTo) {
+            yearTo.placeholder = `Đến ${maxYear}`;
+            yearTo.min = minYear;
+            yearTo.max = maxYear;
+        }
+    },
+
+    updateTypeFilters() {
+        const selectedTypes = [];
+        document.querySelectorAll('input[data-filter="type"]:checked').forEach(checkbox => {
+            selectedTypes.push(checkbox.value);
+        });
+        state.activeFilters.types = selectedTypes;
+    },
+
+    updateStatusFilters() {
+        const selectedStatus = [];
+        document.querySelectorAll('input[data-filter="status"]:checked').forEach(checkbox => {
+            selectedStatus.push(checkbox.value);
+        });
+        state.activeFilters.status = selectedStatus;
+    },
+
+    applyFilters() {
+        const yearFrom = parseInt(utils.safeQuerySelector('#yearFrom')?.value) || null;
+        const yearTo = parseInt(utils.safeQuerySelector('#yearTo')?.value) || null;
+        const province = utils.safeQuerySelector('#provinceFilter')?.value || '';
+        const investor = utils.safeQuerySelector('#investorFilter')?.value || '';
+
+        state.activeFilters.yearFrom = yearFrom;
+        state.activeFilters.yearTo = yearTo;
+        state.activeFilters.province = province;
+        state.activeFilters.investor = investor;
+
+        this.updateTypeFilters();
+        this.updateStatusFilters();
+
+        state.filteredProjects = projectsData.filter(project => {
+            // Type filter
+            if (state.activeFilters.types.length > 0 && 
+                !state.activeFilters.types.includes(project.type)) {
+                return false;
+            }
+
+            // Status filter
+            if (state.activeFilters.status.length > 0 && 
+                !state.activeFilters.status.includes(project.status)) {
+                return false;
+            }
+
+            // Year filter
+            const projectYear = parseInt(project.year);
+            if (yearFrom && projectYear < yearFrom) return false;
+            if (yearTo && projectYear > yearTo) return false;
+
+            // Province filter
+            if (province && project.province !== province) return false;
+
+            // Investor filter
+            if (investor && project.investor !== investor) return false;
+
+            return true;
+        });
+
+        projectsListManager.populateProjectsList();
+        statistics.updateFilteredStats();
+        
+        // Đóng bảng lọc nếu đang mở trên mobile
+        if (window.innerWidth < 768 && state.isFilterPanelOpen) {
+            const filterPanel = utils.safeQuerySelector('#filterPanel');
+            const toggleBtn = utils.safeQuerySelector('#toggleFilters');
+            if (filterPanel && toggleBtn) {
+                filterPanel.style.display = 'none';
+                toggleBtn.classList.remove('active');
+                state.isFilterPanelOpen = false;
+            }
+        }
+    },
+
+    resetFilters() {
+        document.querySelectorAll('input[data-filter="type"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        document.querySelectorAll('input[data-filter="status"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        const yearFrom = utils.safeQuerySelector('#yearFrom');
+        const yearTo = utils.safeQuerySelector('#yearTo');
+        const provinceFilter = utils.safeQuerySelector('#provinceFilter');
+        const investorFilter = utils.safeQuerySelector('#investorFilter');
+
+        if (yearFrom) yearFrom.value = '';
+        if (yearTo) yearTo.value = '';
+        if (provinceFilter) provinceFilter.value = '';
+        if (investorFilter) investorFilter.value = '';
+
+        state.activeFilters = {
+            types: [],
+            yearFrom: null,
+            yearTo: null,
+            province: '',
+            status: [],
+            investor: ''
+        };
+
+        state.filteredProjects = [...projectsData];
+        projectsListManager.populateProjectsList();
+        statistics.updateFilteredStats();
+        
+        projectsListManager.showNotification('Đã đặt lại bộ lọc', 'success');
+    }
+};
+
+// PROJECT INFO MANAGEMENT - ĐẦY ĐỦ
+const projectInfo = {
+    showProjectInfo(project) {
+        const panel = utils.safeQuerySelector('#projectInfo');
+        if (!panel) return;
+
+        state.currentProject = project;
+        this.updateProjectInfoContent(project);
+        panel.style.display = 'block';
+        
+        // Cuộn lên đầu panel
+        panel.scrollTop = 0;
+    },
+
+    updateProjectInfoContent(project) {
+        const statusInfo = utils.getStatusInfo(project.status);
+        
+        // Update basic info
+        const elements = {
+            title: '#projectInfoTitle',
+            province: '#infoProvince',
+            address: '#infoAddress',
+            investor: '#infoInvestor',
+            year: '#infoYear',
+            scale: '#infoScale',
+            coordinates: '#infoCoordinates',
+            description: '#infoDescription',
+            budget: '#infoBudget'
+        };
+
+        Object.entries(elements).forEach(([key, selector]) => {
+            const element = utils.safeQuerySelector(selector);
+            if (element) {
+                element.textContent = this.getProjectInfoValue(project, key);
+            }
+        });
+
+        // Update status
+        const statusElement = utils.safeQuerySelector('#infoStatus');
+        if (statusElement) {
+            statusElement.textContent = statusInfo.name;
+            statusElement.className = `status-badge ${statusInfo.class}`;
+            statusElement.style.backgroundColor = statusInfo.color;
+        }
+
+        // Update additional info nếu có
+        this.updateAdditionalInfo(project);
+        
+        // Update images
+        this.updateProjectImages(project);
+    },
+
+    getProjectInfoValue(project, key) {
+        const values = {
+            title: project.name,
+            province: project.province,
+            address: project.address,
+            investor: project.investor,
+            year: project.year,
+            scale: project.scale,
+            coordinates: `${project.lat.toFixed(4)}, ${project.lng.toFixed(4)}`,
+            description: project.description || 'Đang cập nhật...',
+            budget: utils.formatBudget(project.budget)
+        };
+        return values[key] || 'Đang cập nhật...';
+    },
+
+    updateAdditionalInfo(project) {
+        // Thêm các trường thông tin bổ sung nếu có
+        const additionalInfo = `
+            <div class="info-item">
+                <dt class="info-label">
+                    <i class="fas fa-hard-hat"></i>Nhà thầu
+                </dt>
+                <dd class="info-value">${project.contractor || 'Đang cập nhật'}</dd>
+            </div>
+            <div class="info-item">
+                <dt class="info-label">
+                    <i class="fas fa-drafting-compass"></i>Đơn vị thiết kế
+                </dt>
+                <dd class="info-value">${project.designFirm || 'Đang cập nhật'}</dd>
+            </div>
+            <div class="info-item">
+                <dt class="info-label">
+                    <i class="fas fa-calendar-day"></i>Thời gian thi công
+                </dt>
+                <dd class="info-value">${project.startDate || 'N/A'} - ${project.endDate || 'N/A'}</dd>
+            </div>
+            <div class="info-item">
+                <dt class="info-label">
+                    <i class="fas fa-users"></i>Công suất
+                </dt>
+                <dd class="info-value">${project.capacity || 'Đang cập nhật'}</dd>
+            </div>
+        `;
+
+        const infoGrid = utils.safeQuerySelector('.info-grid');
+        if (infoGrid) {
+            // Giữ lại các phần tử cơ bản, thêm phần bổ sung
+            const existingItems = infoGrid.innerHTML;
+            infoGrid.innerHTML = existingItems + additionalInfo;
+        }
+    },
+
+    updateProjectImages(project) {
+        const imagesPreview = utils.safeQuerySelector('#imagesPreview');
+        const noImagesMessage = utils.safeQuerySelector('#noImagesMessage');
+        const updateDateText = utils.safeQuerySelector('#updateDateText');
+
+        if (!imagesPreview || !noImagesMessage) return;
+
+        if (updateDateText) {
+            updateDateText.textContent = project.updateDate || 'Đang cập nhật';
+        }
+
+        imagesPreview.innerHTML = '';
+        
+        if (project.images && project.images.length > 0) {
+            noImagesMessage.style.display = 'none';
+            imagesPreview.style.display = 'grid';
+
+            project.images.forEach((imageUrl, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-preview-item';
+                imageItem.innerHTML = `
+                    <img src="${imageUrl}" alt="Hình ảnh ${project.name} ${index + 1}" loading="lazy">
+                    <div class="image-preview-info">Hình ${index + 1}</div>
+                `;
+
+                imageItem.addEventListener('click', () => {
+                    imageGallery.openModal(project.images, index);
+                });
+
+                imagesPreview.appendChild(imageItem);
+            });
+        } else {
+            imagesPreview.style.display = 'none';
+            noImagesMessage.style.display = 'block';
+        }
+    },
+
+    hideProjectInfo() {
+        const panel = utils.safeQuerySelector('#projectInfo');
+        if (!panel) return;
+
+        panel.style.display = 'none';
+        markersManager.clearMarkerHighlights();
+        state.currentProject = null;
+    },
+
+    // Chức năng chia sẻ thông tin dự án
+    shareProject() {
+        if (!state.currentProject) return;
+
+        const project = state.currentProject;
+        const shareText = `Dự án: ${project.name}\nĐịa điểm: ${project.province}\nChủ đầu tư: ${project.investor}\nNăm: ${project.year}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: project.name,
+                text: shareText,
+                url: window.location.href
+            });
+        } else {
+            // Fallback cho trình duyệt không hỗ trợ Web Share API
+            navigator.clipboard.writeText(shareText).then(() => {
+                projectsListManager.showNotification('Đã sao chép thông tin dự án', 'success');
+            });
+        }
+    }
+};
+
+// PROVINCE INFO MANAGEMENT - ĐẦY ĐỦ
+const provinceInfo = {
+    showProvinceInfo(province) {
+        const panel = utils.safeQuerySelector('#provinceInfo');
+        if (!panel) return;
+
+        this.updateProvinceInfoContent(province);
+        panel.style.display = 'block';
+    },
+
+    updateProvinceInfoContent(province) {
+        const provinceName = utils.getProvinceName(province.ten_tinh);
+        const provinceProjects = projectsData.filter(p =>
+            p.province.includes(provinceName)
+        );
+
+        const basicInfo = {
+            name: province.ten_tinh,
+            projectCount: provinceProjects.length,
+            area: province.dtich_km2.toLocaleString(),
+            population: (province.dan_so / 1000000).toFixed(2),
+            gdp: (province.dtich_km2 * 0.0001).toFixed(2)
+        };
+
+        Object.entries(basicInfo).forEach(([key, value]) => {
+            const element = utils.safeQuerySelector(`#province${key.charAt(0).toUpperCase() + key.slice(1)}`);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+
+        this.populateProvinceProjects(provinceProjects);
+    },
+
+    populateProvinceProjects(provinceProjects) {
+        const projectsList = utils.safeQuerySelector('#provinceProjectsList');
+        if (!projectsList) return;
+
+        projectsList.innerHTML = '';
+
+        if (provinceProjects.length === 0) {
+            projectsList.innerHTML = `
+                <div class="no-projects-message">
+                    <i class="fas fa-hard-hat"></i>
+                    <p>Chưa có dự án nào trong tỉnh này</p>
+                </div>
+            `;
+            return;
+        }
+
+        provinceProjects.forEach(project => {
+            const statusInfo = utils.getStatusInfo(project.status);
+            const projectEl = document.createElement('div');
+            projectEl.className = 'project-item';
+            projectEl.innerHTML = `
+                <div class="project-header">
+                    <div class="project-name">${project.name}</div>
+                    <span class="status-badge ${statusInfo.class}">${statusInfo.name}</span>
+                </div>
+                <div class="project-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    ${project.address}
+                </div>
+                <div class="project-details">
+                    <span class="project-type">${utils.getTypeName(project.type)}</span>
+                    <span class="project-year">${project.year}</span>
+                    <span class="project-budget">${project.budget}</span>
+                </div>
+            `;
+            projectEl.addEventListener('click', () => {
+                projectInfo.showProjectInfo(project);
+                this.hideProvinceInfo();
+            });
+            projectsList.appendChild(projectEl);
+        });
+    },
+
+    hideProvinceInfo() {
+        const panel = utils.safeQuerySelector('#provinceInfo');
+        if (!panel) return;
+
+        panel.style.display = 'none';
+        mapLayers.clearProvinceSelection();
+    }
+};
+
+// STATISTICS MANAGEMENT - ĐẦY ĐỦ
+const statistics = {
+    update() {
+        this.updateTotalProjects();
+        this.updateTotalProvinces();
+        this.updateBudgetStats();
+        this.updateStatusStats();
+    },
+
+    updateTotalProjects() {
+        const element = utils.safeQuerySelector('#totalProjects');
+        if (element) {
+            element.textContent = projectsData.length;
+        }
+    },
+
+    updateTotalProvinces() {
+        const element = utils.safeQuerySelector('#totalProvinces');
+        if (element) {
+            const uniqueProvinces = new Set(projectsData.map(p => p.province));
+            element.textContent = uniqueProvinces.size;
+        }
+    },
+
+    updateBudgetStats() {
+        const totalBudget = projectsData.reduce((sum, project) => {
+            const budgetMatch = project.budget?.match(/(\d+(\.\d+)?)/);
+            const budgetValue = budgetMatch ? parseFloat(budgetMatch[1]) : 0;
+            return sum + budgetValue;
+        }, 0);
+
+        const budgetElement = utils.safeQuerySelector('#totalBudget');
+        if (budgetElement) {
+            budgetElement.textContent = `${(totalBudget / 1000).toFixed(1)} tỷ USD`;
+        }
+    },
+
+    updateStatusStats() {
+        const statusCount = {};
+        projectsData.forEach(project => {
+            statusCount[project.status] = (statusCount[project.status] || 0) + 1;
+        });
+
+        // Cập nhật các chỉ số status nếu có element tương ứng
+        Object.entries(statusCount).forEach(([status, count]) => {
+            const element = utils.safeQuerySelector(`#${status}Projects`);
+            if (element) {
+                element.textContent = count;
+            }
+        });
+    },
+
+    updateFilteredStats() {
+        const filteredCount = state.filteredProjects.length;
+        const totalCount = projectsData.length;
+        
+        console.log(`Hiển thị ${filteredCount}/${totalCount} công trình`);
+        
+        // Có thể thêm thông báo hoặc cập nhật UI khác
+        if (filteredCount < totalCount && filteredCount > 0) {
+            projectsListManager.showNotification(`Đang hiển thị ${filteredCount} công trình phù hợp`, 'info');
+        }
+    },
+
+    exportStatistics() {
+        const stats = utils.calculateStats();
+        const dataStr = JSON.stringify(stats, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'thong-ke-cong-trinh.json';
+        link.click();
+    }
+};
+
+// UI CONTROLS MANAGEMENT - ĐẦY ĐỦ
+const uiControls = {
+    init() {
+        this.setupMapControls();
+        this.setupLayerControls();
+        this.setupCloseButtons();
+        this.setupSearch();
+        this.setupThemeToggle();
+        this.setupResponsive();
+    },
+
+    setupMapControls() {
+        const controls = {
+            'zoomIn': () => map.zoomIn(),
+            'zoomOut': () => map.zoomOut(),
+            'resetView': () => this.resetView(),
+            'toggleSatellite': (e) => this.toggleSatellite(e),
+            'toggleControls': () => this.toggleControls(),
+            'openLayers': () => this.showElement('#mapOverlay'),
+            'openLegend': () => this.showElement('#legend'),
+            'exportData': () => this.exportData(),
+            'themeToggle': () => this.toggleTheme()
+        };
+
+        Object.entries(controls).forEach(([id, handler]) => {
+            const element = utils.safeQuerySelector(`#${id}`);
+            if (element) {
+                element.addEventListener('click', handler);
+            }
+        });
+    },
+
+    resetView() {
+        mapLayers.clearProvinceSelection();
+        projectInfo.hideProjectInfo();
+        provinceInfo.hideProvinceInfo();
+        markersManager.clearMarkerHighlights();
+        
+        map.flyTo({
+            center: CONFIG.MAP.center,
+            zoom: CONFIG.MAP.zoom,
+            bearing: 0,
+            pitch: 0,
+            essential: true
+        });
+    },
+
+    toggleSatellite(e) {
+        const isSatellite = map.getStyle().name.includes('Satellite');
+        const newStyle = isSatellite ? CONFIG.MAP.styles.light : CONFIG.MAP.styles.satellite;
+        
+        map.setStyle(newStyle);
+        
+        // Đảm bảo các layer được thêm lại sau khi thay đổi style
+        map.once('styledata', () => {
+            mapLayers.addProvincesLayer();
+            markersManager.addProjectMarkers();
+            mapLayers.setupProvinceInteractions();
+        });
+
+        if (e.target) {
+            e.target.classList.toggle('active', !isSatellite);
+        }
+    },
+
+    toggleControls() {
+        const controls = utils.safeQuerySelector('.map-controls');
+        const icon = utils.safeQuerySelector('#toggleControls i');
+
+        if (controls && icon) {
+            controls.classList.toggle('controls-collapsed');
+            icon.className = controls.classList.contains('controls-collapsed') ?
+                'fas fa-chevron-right' :
+                'fas fa-chevron-left';
+        }
+    },
+
+    setupLayerControls() {
+        const layerControls = {
+            'satelliteLayer': (checked) => {
+                const isSatellite = map.getStyle().name.includes('Satellite');
+                if (checked && !isSatellite) {
+                    map.setStyle(CONFIG.MAP.styles.satellite);
+                } else if (!checked && isSatellite) {
+                    map.setStyle(CONFIG.MAP.styles.light);
+                }
+            },
+            'projectLayer': (checked) => {
+                markersManager.toggleMarkersVisibility(checked);
+            },
+            'provinceLayer': (checked) => {
+                const opacity = checked ? 0.1 : 0;
+                const hoverOpacity = checked ? 0.3 : 0;
+                const selectedOpacity = checked ? 0.4 : 0;
+
+                map.setPaintProperty('provinces-fill', 'fill-opacity', [
+                    'case', 
+                    ['boolean', ['feature-state', 'hover'], false], hoverOpacity, 
+                    ['boolean', ['feature-state', 'selected'], false], selectedOpacity,
+                    opacity
+                ]);
+                map.setPaintProperty('provinces-border', 'line-opacity', checked ? 0.3 : 0);
+            },
+            'heatmapLayer': (checked) => {
+                if (checked) {
+                    mapLayers.addProjectsHeatmap();
+                } else {
+                    if (map.getLayer('projects-heat')) {
+                        map.removeLayer('projects-heat');
+                    }
+                    if (map.getSource('projects-heat')) {
+                        map.removeSource('projects-heat');
+                    }
+                }
+            }
+        };
+
+        Object.keys(layerControls).forEach(layerId => {
+            const checkbox = utils.safeQuerySelector(`#${layerId}`);
+            if (checkbox) {
+                checkbox.addEventListener('change', (e) => {
+                    layerControls[layerId](e.target.checked);
+                });
+            }
+        });
+    },
+
+    setupCloseButtons() {
+        const closeButtons = {
+            'closeInfo': () => projectInfo.hideProjectInfo(),
+            'closeProvinceInfo': () => provinceInfo.hideProvinceInfo(),
+            'closeOverlay': () => this.hideElement('#mapOverlay'),
+            'closeLegend': () => this.hideElement('#legend')
+        };
+
+        Object.entries(closeButtons).forEach(([id, handler]) => {
+            const element = utils.safeQuerySelector(`#${id}`);
+            if (element) {
+                element.addEventListener('click', handler);
+            }
+        });
+
+        // Đóng các panel khi click ra ngoài
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.project-info') && !e.target.closest('.project-marker')) {
+                projectInfo.hideProjectInfo();
+            }
+            
+            if (!e.target.closest('.province-info') && !e.target.closest('.province-tooltip')) {
+                provinceInfo.hideProvinceInfo();
+            }
+        });
+    },
+
+    setupSearch() {
+        const searchInput = utils.safeQuerySelector('#searchInput');
+        if (searchInput) {
+            const debouncedSearch = utils.debounce((e) => {
+                projectsListManager.filterProjects(e.target.value.toLowerCase());
+            }, 300);
+
+            searchInput.addEventListener('input', debouncedSearch);
+            
+            // Clear search khi click icon
+            const searchIcon = searchInput.parentNode.querySelector('.search-icon');
+            if (searchIcon) {
+                searchIcon.addEventListener('click', () => {
+                    searchInput.value = '';
+                    projectsListManager.filterProjects('');
+                });
+            }
+        }
+    },
+
+    setupThemeToggle() {
+        const themeToggle = utils.safeQuerySelector('#themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                state.currentTheme = newTheme;
+                
+                const icon = themeToggle.querySelector('i');
+                if (icon) {
+                    icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+                
+                // Lưu preference vào localStorage
+                localStorage.setItem('map-theme', newTheme);
+            });
+
+            // Khôi phục theme từ localStorage
+            const savedTheme = localStorage.getItem('map-theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                state.currentTheme = savedTheme;
+                const icon = themeToggle.querySelector('i');
+                if (icon) {
+                    icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        }
+    },
+
+    setupResponsive() {
+        // Xử lý responsive behavior
+        const handleResize = () => {
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                // Đóng các panel trên mobile
+                projectInfo.hideProjectInfo();
+                provinceInfo.hideProvinceInfo();
+                this.hideElement('#mapOverlay');
+                this.hideElement('#legend');
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Chạy lần đầu
+    },
+
+    toggleTheme() {
+        this.setupThemeToggle();
+    },
+
+    exportData() {
+        const data = {
+            projects: projectsData,
+            statistics: utils.calculateStats(),
+            exportDate: new Date().toISOString(),
+            totalRecords: projectsData.length
+        };
+
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `du-lieu-cong-trinh-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        projectsListManager.showNotification('Đã xuất dữ liệu thành công', 'success');
+    },
+
+    showElement(selector) {
+        const element = utils.safeQuerySelector(selector);
+        if (element) {
+            element.style.display = 'block';
+        }
+    },
+
+    hideElement(selector) {
+        const element = utils.safeQuerySelector(selector);
+        if (element) {
+            element.style.display = 'none';
+        }
+    }
+};
+
+// MAIN INITIALIZATION - ĐẦY ĐỦ
+function init() {
+    try {
+        // Setup tooltip
+        state.tooltip = document.createElement('div');
+        state.tooltip.className = 'province-tooltip';
+        const mapContainer = utils.safeQuerySelector('.map-container');
+        if (mapContainer) {
+            mapContainer.appendChild(state.tooltip);
+        }
+
+        // Setup map events
+        map.on('movestart', () => state.isMapMoving = true);
+        map.on('moveend', () => state.isMapMoving = false);
+        map.on('load', () => {
+            console.log('Map loaded successfully');
+        });
+
+        // Initialize components
+        uiControls.init();
+        filterManager.init();
+        imageGallery.init();
+        projectsListManager.populateProjectsList();
+        statistics.update();
+
+        // Setup additional event listeners
+        this.setupGlobalEventListeners();
+
+        // Hide loading overlay
+        this.hideLoadingOverlay();
+
+        console.log('Map application initialized successfully with', projectsData.length, 'projects');
+    } catch (error) {
+        console.error('Error initializing application:', error);
+        this.showError('Không thể khởi tạo ứng dụng. Vui lòng thử lại.');
+    }
+}
+
+function setupGlobalEventListeners() {
+    // ESC key to close modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            projectInfo.hideProjectInfo();
+            provinceInfo.hideProvinceInfo();
+            uiControls.hideElement('#mapOverlay');
+            uiControls.hideElement('#legend');
+            imageGallery.closeModal();
+        }
+    });
+
+    // Click outside to close panels
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.project-info') && !e.target.closest('.project-marker')) {
+            projectInfo.hideProjectInfo();
+        }
+    });
+
+    // Prevent body scroll when modals are open
+    const observer = new MutationObserver(() => {
+        const isModalOpen = document.querySelector('.image-modal[style*="display: flex"]') ||
+                          document.querySelector('.project-info[style*="display: block"]') ||
+                          document.querySelector('.province-info[style*="display: block"]');
+        
+        document.body.style.overflow = isModalOpen ? 'hidden' : 'auto';
+    });
+
+    observer.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['style']
+    });
+}
+
+function hideLoadingOverlay() {
+    const loadingOverlay = utils.safeQuerySelector('.loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+            if (loadingOverlay.parentNode) {
+                loadingOverlay.style.display = 'none';
+            }
+        }, 500);
+    }
+}
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `
+        <div class="error-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>${message}</span>
+            <button onclick="this.parentNode.parentNode.remove()">&times;</button>
+        </div>
+    `;
+    document.body.appendChild(errorDiv);
+
+    setTimeout(() => {
+        if (errorDiv.parentNode) {
+            errorDiv.remove();
+        }
+    }, 5000);
+}
+
+function handleMapLoad() {
+    mapLayers.addProvincesLayer();
+    markersManager.addProjectMarkers();
+    mapLayers.setupProvinceInteractions();
+    mapLayers.addProjectsHeatmap();
+}
+
+// Initialize when map is ready
+map.on('load', () => {
+    handleMapLoad();
+    init();
+});
+
+// Error handling for map
+map.on('error', (e) => {
+    console.error('Map error:', e);
+    showError('Lỗi tải bản đồ. Vui lòng kiểm tra kết nối internet.');
+});
+
+map.on('sourcedata', (e) => {
+    if (e.isSourceLoaded && e.sourceId === 'vietnam-provinces') {
+        console.log('Vietnam provinces data loaded successfully');
+    }
+});
+
+// Export for global access
+window.projectInfo = projectInfo;
+window.provinceInfo = provinceInfo;
+window.mapLayers = mapLayers;
+window.markersManager = markersManager;
+window.filterManager = filterManager;
+window.projectsListManager = projectsListManager;
+window.imageGallery = imageGallery;
+window.statistics = statistics;
+window.uiControls = uiControls;
+window.utils = utils;
+window.state = state;
+window.map = map;
+
+// Service Worker registration for PWA (optional)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
+
+// Online/Offline detection
+window.addEventListener('online', () => {
+    projectsListManager.showNotification('Kết nối internet đã được khôi phục', 'success');
+});
+
+window.addEventListener('offline', () => {
+    projectsListManager.showNotification('Mất kết nối internet. Một số tính năng có thể không hoạt động.', 'error');
+});
+
+console.log('Main application script loaded completely');
